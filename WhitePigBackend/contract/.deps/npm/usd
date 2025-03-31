@@ -1,0 +1,8 @@
+/**
+ * Minified by jsDelivr using Terser v5.19.2.
+ * Original file: /npm/usd@1.0.3/index.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+if("object"==typeof module&&module&&"object"==typeof module.exports)var isNode=!0,define=function(e){module.exports=e(require,exports,module)};define((function(e,t,n){return n.exports=e("stampit")().state({_pennies:0}).enclose((function(){if("number"==typeof this.pennies)throw new Error("Do not create with `pennies` set")})).methods({pennies:function(e){return e?(this._pennies=e,this):this.toPennies()},dollars:function(e){if(!e&&0!=e)return this.toDollars();if(e=Math.round(100*parseFloat(e)),isNaN(e))throw new Error("Invalid dollars value");return this.pennies(e)},toDollarsNoCents:function(){var e=parseFloat(this._pennies);return isNaN(e)?"0":+n.exports.round10(e/100,-2).toFixed(2).split(".")[0]},toDollars:function(){var e=parseFloat(this._pennies);return isNaN(e)?"0":n.exports.round10(e/100,-2).toFixed(2)},toPennies:function(){return this._pennies},valueOf:function(){return this.toPennies()}}),n.exports.decimalAdjust=function(e,t,n){return void 0===n||0==+n?Math[e](t):(t=+t,n=+n,isNaN(t)||"number"!=typeof n||n%1!=0?NaN:(t=t.toString().split("e"),+((t=(t=Math[e](+(t[0]+"e"+(t[1]?+t[1]-n:-n)))).toString().split("e"))[0]+"e"+(t[1]?+t[1]+n:n))))},n.exports.round10=function(e,t){return n.exports.decimalAdjust("round",e,t)},n.exports}));
+//# sourceMappingURL=/sm/647d883fc4df840468fde5c49115aa76a243a61a2cab8a43ad73ae3e6992a1e8.map

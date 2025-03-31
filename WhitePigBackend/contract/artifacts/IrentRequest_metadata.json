@@ -1,0 +1,61 @@
+{
+	"compiler": {
+		"version": "0.8.22+commit.4fc1097e"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"rentRequest.sol": "IrentRequest"
+		},
+		"evmVersion": "shanghai",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"propertyManagement.sol": {
+			"keccak256": "0x4a176d97b3de9ef2855628c890037078e6cbb6b5b81ba5eddaaee3c497592e60",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ffdcccbefb88b881b30b27ec79dc0cd494d5feef92ab8b8fdd7cecea70987c73",
+				"dweb:/ipfs/QmWbMqmZ4AajgH5XB6jgF4BoixjMzLwMEYMsWwqv56MPMu"
+			]
+		},
+		"rentRequest.sol": {
+			"keccak256": "0x346f685dec2803d374be1a11dd61bdb992d1b16d71b26b6e3e21df4869d198ad",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://dae29cbd5ab3de7124ed3d03791b524070c68c6ce8cbb51edb03cd772f39a8ac",
+				"dweb:/ipfs/QmbCdVguHiFMJwj6fLAnbJ7Z5Ek27bpBPWBi7FwyohGsXq"
+			]
+		},
+		"userInformation.sol": {
+			"keccak256": "0xde0aa4e788a548091c74f12bc7d80ac54c6aa1da863a0ac35f28a4890e6da37d",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0fc44da91fcb945d10099938be65b1143c8370ef760ee11e898e80aae47763b7",
+				"dweb:/ipfs/QmepKSiPjUdsrY2AFsWxtLfdJ6cNW9d1X9kjTCTSEzobHh"
+			]
+		}
+	},
+	"version": 1
+}

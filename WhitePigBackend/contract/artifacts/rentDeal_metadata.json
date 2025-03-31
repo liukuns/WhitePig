@@ -1,0 +1,53 @@
+{
+	"compiler": {
+		"version": "0.8.22+commit.4fc1097e"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"rentDAO.sol": "rentDeal"
+		},
+		"evmVersion": "shanghai",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"rentDAO.sol": {
+			"keccak256": "0x864d2bdf834c0e109571c0c5ffbd3bb78f22a43ae7e0887eb520990205994496",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://88fa41165405f0de1cbebf305515d94d25b84746e8967d727db8327006de9812",
+				"dweb:/ipfs/QmPxP6QNK5VvU9nNr6ge4FvBXoWD2iaD1gE5uvhMyQZe8v"
+			]
+		},
+		"userInformation.sol": {
+			"keccak256": "0x4e237dee31db944f699b4844223aa05894ba30f84eee56e78168b2052d78915a",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://098d27afa889e1bf236c9f56b0d27b98db0e057ea4f3eb13a2746926630fa5d5",
+				"dweb:/ipfs/QmVhAZH9yB1SsW5esQujXxHGa1ktZnvgbX2FDQEDHiFD1i"
+			]
+		}
+	},
+	"version": 1
+}
