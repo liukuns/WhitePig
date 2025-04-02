@@ -1,12 +1,8 @@
-'use strict'
-
-module.exports = function rent (renderFn, state) {
-  if (typeof renderFn !== 'function') {
-    throw new TypeError('render must be a function, got ' + renderFn)
-  }
-
-  return function render () {
-    var currentState = typeof state === 'function' ? state() : state
-    return renderFn(currentState)
-  }
-}
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /npm/rent@2.0.0/index.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+"use strict";module.exports=function(t,n){if("function"!=typeof t)throw new TypeError("render must be a function, got "+t);return function(){var r="function"==typeof n?n():n;return t(r)}};
+//# sourceMappingURL=/sm/e788abc14c0f85d5431ba9bedca42a51b041c93ccfe462516adad16ddb72c483.map

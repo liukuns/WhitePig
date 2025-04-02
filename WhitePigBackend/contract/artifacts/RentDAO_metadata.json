@@ -226,6 +226,25 @@
 			{
 				"inputs": [
 					{
+						"internalType": "uint256",
+						"name": "_propertyId",
+						"type": "uint256"
+					}
+				],
+				"name": "checkIsCompleted",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "string",
 						"name": "description",
 						"type": "string"
@@ -414,25 +433,6 @@
 				"type": "function"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"name": "members",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
 				"inputs": [],
 				"name": "proposalCount",
 				"outputs": [
@@ -449,50 +449,6 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "proposals",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "votesFor",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "votesAgainst",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "deadline",
-						"type": "uint256"
-					},
-					{
-						"internalType": "bool",
-						"name": "executed",
-						"type": "bool"
-					},
-					{
-						"internalType": "address",
-						"name": "proposer",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
 						"name": "dealId",
 						"type": "uint256"
 					},
@@ -500,6 +456,11 @@
 						"internalType": "uint256",
 						"name": "_grade",
 						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_wards",
+						"type": "string"
 					}
 				],
 				"name": "rateDeal",
@@ -512,40 +473,6 @@
 				"name": "registerAsMember",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "dealId",
-						"type": "uint256"
-					}
-				],
-				"name": "remarks",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "owner",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "grade",
-						"type": "uint256"
-					},
-					{
-						"internalType": "string",
-						"name": "wards",
-						"type": "string"
-					},
-					{
-						"internalType": "bool",
-						"name": "isRemarked",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -720,19 +647,19 @@
 			]
 		},
 		"rentDAO.sol": {
-			"keccak256": "0xa0e208ce4bb2bc1b848c09f7b3eb7f10c5fabda868ffbadd219da98eb84ef17a",
+			"keccak256": "0x1f692c4048a01ba4fb43f68075ac5525b1849af77d309e0fe24aa29519eb5ca4",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://b03c2ce9498308d5122c30b14db7730511dea7c6c7f2a582136f89753a78cfc4",
-				"dweb:/ipfs/QmVrw2Fi1jU1VoWjb2unSfn63KeUiDS1MuKpG9zBEH6SrB"
+				"bzz-raw://bad87872c878c139b7123b59ac8ea62470272f152743334ce64b02fd93aa542e",
+				"dweb:/ipfs/QmPutpCav3xqTUaepF5D4P41bTd7wc2miQNkQg3GYvbpe9"
 			]
 		},
 		"userInformation.sol": {
-			"keccak256": "0xde0aa4e788a548091c74f12bc7d80ac54c6aa1da863a0ac35f28a4890e6da37d",
+			"keccak256": "0x5bf2d3470822115c55873d112a4ffc4212092467a93d501dbc948092652cd5f4",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://0fc44da91fcb945d10099938be65b1143c8370ef760ee11e898e80aae47763b7",
-				"dweb:/ipfs/QmepKSiPjUdsrY2AFsWxtLfdJ6cNW9d1X9kjTCTSEzobHh"
+				"bzz-raw://296145bf7a7287aa20b0a5cc81d1f9d2db880785c7905d37537d49313ed5cfb5",
+				"dweb:/ipfs/QmZi7JhBuDpbWAms7SuVWCm83bLKLSjxWYGs8dLm6uUJuD"
 			]
 		}
 	},

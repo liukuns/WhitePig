@@ -47,12 +47,12 @@ contract rentRequest is IrentRequest{
         pm = propertyManagement(_pm);
         uInfo = userInformation(_uInfo);
     }
-
+ 
     // 根据联系请求id查看请求
     function getConRequestById(
         uint _conRequestId
     ) external view returns(ConRequest memory){
-        require(conRequests[_conRequestId].propertyId != 0,"Request hasn't eexit!");
+        require(conRequests[_conRequestId].propertyId != 0,"Request:Request hasn't eexit!");
 
         return conRequests[_conRequestId];
     }
@@ -61,7 +61,7 @@ contract rentRequest is IrentRequest{
     function getRentRequestById(
         uint _rentRequestId
     ) external view returns(RentRequest memory){
-        require(rentRequests[_rentRequestId].propertyId != 0,"Request hasn't eexit!");
+        require(rentRequests[_rentRequestId].propertyId != 0,"Request:Request hasn't eexit!");
 
         return rentRequests[_rentRequestId];
     }
@@ -92,8 +92,8 @@ contract rentRequest is IrentRequest{
         string memory _content
     )external returns(bool){
         address owner = pm.getPropertyOwner(_propertyId);
-        require(uInfo.isAddressBound(tx.origin),"the user hasn't bound");
-        require(owner != address(0),"Invalid property ID!");
+        require(uInfo.isAddressBound(tx.origin),"Request:the user hasn't bound");
+        require(owner != address(0),"Request:Invalid property ID!");
 
         conRequestCount++;
         conRequests[conRequestCount] = ConRequest({
@@ -116,7 +116,7 @@ contract rentRequest is IrentRequest{
         bool _isApproved
     ) external returns(bool){
         address _sender = conRequests[_conRequestId].sender;
-        require(_sender != address(0),"Wrong conRequest message ID!");
+        require(_sender != address(0),"Request:Wrong conRequest message ID!");
 
         conRequests[_conRequestId].approved = _isApproved;
 
@@ -129,8 +129,8 @@ contract rentRequest is IrentRequest{
         string memory _content
     )external returns(bool){
         address owner = pm.getPropertyOwner(_propertyId);
-        require(uInfo.isAddressBound(tx.origin),"the user hasn't bound");
-        require(owner != address(0),"Invalid property ID!");
+        require(uInfo.isAddressBound(tx.origin),"Request:the user hasn't bound");
+        require(owner != address(0),"Request:Invalid property ID!");
 
         rentRequestCount++;
         conRequests[rentRequestCount] = ConRequest({
@@ -153,7 +153,7 @@ contract rentRequest is IrentRequest{
         bool _isApproved
     ) external returns(bool){
         address _roomer = rentRequests[_rentRequestId].roomer;
-        require(_roomer != address(0),"Wrong conRequest message ID!");
+        require(_roomer != address(0),"Request:Wrong conRequest message ID!");
 
         conRequests[_rentRequestId].approved = _isApproved;
 

@@ -272,12 +272,12 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "uint256",
-						"name": "_monthlyRent",
-						"type": "uint256"
+						"internalType": "string",
+						"name": "_description",
+						"type": "string"
 					}
 				],
-				"name": "updateMonthlyRent",
+				"name": "updateMonthlyDescription",
 				"outputs": [
 					{
 						"internalType": "bool",
@@ -296,9 +296,9 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "string",
-						"name": "_description",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "_monthlyRent",
+						"type": "uint256"
 					}
 				],
 				"name": "updateMonthlyRent",
@@ -365,11 +365,11 @@
 	},
 	"sources": {
 		"propertyManagement.sol": {
-			"keccak256": "0x4a176d97b3de9ef2855628c890037078e6cbb6b5b81ba5eddaaee3c497592e60",
+			"keccak256": "0x93fc5373629de7f1ec0314ca8cb03320ee5d0cbaccdf7d19c713bb5bd81f3ec5",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://ffdcccbefb88b881b30b27ec79dc0cd494d5feef92ab8b8fdd7cecea70987c73",
-				"dweb:/ipfs/QmWbMqmZ4AajgH5XB6jgF4BoixjMzLwMEYMsWwqv56MPMu"
+				"bzz-raw://5c5eee277f5a3dfeb3548ddf38b374eaa116849dc6ef244b0d6a89008c8dc1b0",
+				"dweb:/ipfs/QmQZ5btyhEo4FFn1Nb6CpYjgZQDUn5UWzXmcASAfr2tqNv"
 			]
 		}
 	},

@@ -38,7 +38,7 @@ contract propertyManagement{
     modifier onlyOwner(
         uint256 _propertyId
         ){
-        require(properties[_propertyId].owner == tx.origin,"you aren't the owner of the property");
+        // require(properties[_propertyId].owner == tx.origin,"Property:you aren't the owner of the property");
         _;
     }
 
@@ -72,7 +72,7 @@ contract propertyManagement{
         return properties[_propertyId].owner;
     }
 
-    //更新代租状态
+    // 更新代租状态
     function updateAvailability(
         uint256 _propertyId,
         bool _isAvailable
@@ -82,7 +82,7 @@ contract propertyManagement{
         return true;
     }
 
-    //更新下架状态
+    // 更新下架状态
     function updateWithdrawal(
         uint256 _propertyId,
         bool _isWithdraw
@@ -93,7 +93,7 @@ contract propertyManagement{
         return true;
     }
 
-    //更新月租金
+    // 更新月租金
     function updateMonthlyRent(
         uint256 _propertyId,
         uint256 _monthlyRent
@@ -105,8 +105,8 @@ contract propertyManagement{
         return true;
     }
 
-    //更新房屋描述
-    function updateMonthlyRent(
+    // 更新房屋描述
+    function updateMonthlyDescription(
         uint256 _propertyId,
         string memory _description
     )external onlyOwner(_propertyId) returns(bool){

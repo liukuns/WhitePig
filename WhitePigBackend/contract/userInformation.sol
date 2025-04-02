@@ -27,7 +27,7 @@ contract userInformation is IUserInformation{
     function setReputationWhiteUser(
         uint _grade
     ) external returns(bool){
-        require(isAddressBound(tx.origin),"Please bound with your identification!");
+        require(isAddressBound(tx.origin),"User:Please bound with your identification!");
 
         userInfos[tx.origin].reputation = _grade;
 
@@ -43,11 +43,11 @@ contract userInformation is IUserInformation{
         string memory idHash = hashId(_id);
 
         // 检查数字身份证是否为黑名单用户
-        require(!isBlacklisted[idHash], "ID is blacklisted");
+        require(!isBlacklisted[idHash], "User:ID is blacklisted");
 
         // 检查用户是否已绑定过数字身份证
-        require(!userInfos[tx.origin].isBound, "Address already bound");
-        require(!isBoundId[idHash], "ID already bound");
+        require(!userInfos[tx.origin].isBound, "User:Address already bound");
+        require(!isBoundId[idHash], "User:ID already bound");
 
         // 完善用户身份信息
         userInfos[msg.sender] = UserInfo({
@@ -105,7 +105,7 @@ contract userInformation is IUserInformation{
     function getUserInfo(
         address _add
     )external view returns(UserInfo memory){
-        require(isAddressBound(_add),"the address havn't bound");
+        require(isAddressBound(_add),"User:the address havn't bound");
 
         return userInfos[_add];
     }
@@ -114,7 +114,7 @@ contract userInformation is IUserInformation{
     function getUserReputation(
         address _add
     ) external view returns(uint){
-        require(isAddressBound(_add),"the address havn't bound");
+        require(isAddressBound(_add),"User:the address havn't bound");
 
         return  userInfos[_add].reputation;
     }
@@ -123,7 +123,7 @@ contract userInformation is IUserInformation{
     function isAddressBound(
         address _add
     ) public view returns (bool) {
-        require(_add != address(0),"address can't be a zero address");
+        require(_add != address(0),"User:address can't be a zero address");
 
         bool isAddBound = userInfos[_add].isBound;
 
