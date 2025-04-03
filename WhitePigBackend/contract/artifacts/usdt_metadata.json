@@ -241,6 +241,49 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
+						"name": "_rentAmount",
+						"type": "uint256"
+					}
+				],
+				"name": "getDeposite",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "rentTimeStart",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "rentTimeEnd",
+						"type": "uint256"
+					}
+				],
+				"name": "getRentAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
 						"name": "amount",
 						"type": "uint256"
 					}
@@ -501,11 +544,11 @@
 			]
 		},
 		"usdt.sol": {
-			"keccak256": "0xb295456cddb41555412b452b828867c380295ebd76f17039796b9051fa002f00",
+			"keccak256": "0xac9684dc4a0f46c5ce839874a378b2be2fd2d63e34ff8d46e2bd96134335a0b1",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://26dc34689cf902e2c2f6fa8950cda1a0ffa026f4c0325e1fb56253f64814431b",
-				"dweb:/ipfs/QmZVPYF6QpmdjU7C5qJrLU2MP9ZYrKKiEr2GffsmiVpzzA"
+				"bzz-raw://e6319514b5e802d83cafc22f212531d1cd90507320542bd5bc5d21c427346af1",
+				"dweb:/ipfs/QmT149WgJPtdrEsRqN52hgM8X4cAzejVM11M9j9P9LU4QF"
 			]
 		}
 	},

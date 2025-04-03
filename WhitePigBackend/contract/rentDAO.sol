@@ -80,7 +80,7 @@ contract rentDAO is IUserInformation,IRentDeal{
     }
 
     // 查看租房完成状态
-    function checkIsCompleted(
+    function _checkIsCompleted(
         uint _propertyId
     ) public returns(bool){
         uint end = deals[_propertyId].rentTimeStart;
@@ -91,6 +91,17 @@ contract rentDAO is IUserInformation,IRentDeal{
         }
 
         return false;
+    }
+
+    // DAO成员注册函数
+    function registerAsMember() external {
+        require(!members[tx.origin], "DAO:Already a member");
+        require(user.getUserReputation(tx.origin) >= 90,"DAO:reputation not enougth");
+
+        members[tx.origin] = true;
+        rrt.mint(1e18);
+
+        emit MemberRegistered(msg.sender);
     }
 
     // DAO成员纠纷投票(1)投了还可以投
@@ -125,8 +136,7 @@ contract rentDAO is IUserInformation,IRentDeal{
             uint _start = deals[disputes[disputeId].dealId].rentTimeStart;
             uint _end = deals[disputes[disputeId].dealId].rentTimeEnd;
             uint _count = (_end - _start) / 1 minutes;
-            uint adjustment = _count*30 /360;
-            user.deputeUserReputation(disputes[disputeId].roe,adjustment);
+            user.deputeUserReputation(disputes[disputeId].roe,_count);
         }
 
         dispute.executed = true;
@@ -134,17 +144,6 @@ contract rentDAO is IUserInformation,IRentDeal{
         rrt.mint(2e18);
 
         emit ProposalExecuted(disputeId, true);
-    }
-
-    // DAO成员注册函数
-    function registerAsMember() external {
-        require(!members[tx.origin], "DAO:Already a member");
-        require(user.getUserReputation(tx.origin) >= 90,"DAO:reputation not enougth");
-
-        members[tx.origin] = true;
-        rrt.mint(1e18);
-
-        emit MemberRegistered(msg.sender);
     }
 
     // 创建提案(DAO内部提案)
@@ -203,7 +202,7 @@ contract rentDAO is IUserInformation,IRentDeal{
         emit ProposalExecuted(proposalId, success);
     }
 
-    // 是否为DAO成员
+    // 是否为DAO成员（内部）
     function isMember() public view returns(bool){
         return members[tx.origin];
     }
@@ -250,7 +249,7 @@ contract rentDAO is IUserInformation,IRentDeal{
         isPawned[_propertyId] = _isPawned;
     }
 
-    // 评价功能
+    // 评价功能（内部）
     function rateDeal(
         uint dealId,
         uint _grade,
@@ -262,10 +261,11 @@ contract rentDAO is IUserInformation,IRentDeal{
         require(!remarks[dealId][tx.origin].isRemark, "DAO:Already rated");
 
         address otherParty = (tx.origin == deal.roomer)
-            ? deal.landord
-            : deal.roomer;                                    // 获取对方地址
-        remarks[dealId][tx.origin].isRemark = true;           // 标记当前用户已评价
+            ? deal.landord 
+            : deal.roomer;                                   // 获取对方地址
+        // address otherParty = tx.origin;
 
+        remarks[dealId][tx.origin].isRemark = true;           // 标记当前用户已评价
         remarks[dealId][otherParty].wards = _wards;           // 对方在这笔交易中获得的评价
         remarks[dealId][otherParty].grade = _grade;
 
@@ -273,12 +273,15 @@ contract rentDAO is IUserInformation,IRentDeal{
         uint _start = deals[dealId].rentTimeStart;
         uint _end = deals[dealId].rentTimeEnd;
 
+        // uint _start = block.timestamp;
+        // uint _end = block.timestamp + 9 * 1 minutes;
+
         if(_grade >= 90){
             user.addUserReputation(otherParty,currentReputation,2*(_end - _start)/ 1 minutes);
         }else if(_grade >= 60){
             user.addUserReputation(otherParty,currentReputation,(_end - _start)/1 minutes);
         }else{
-            user.addUserReputation(otherParty,currentReputation,(_end - (2*_start))/1 minutes);
+            user.addUserReputation(otherParty,currentReputation,(_end - _start)/2 minutes);
         }
     }
 

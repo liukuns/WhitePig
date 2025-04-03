@@ -18,7 +18,7 @@ import "./rentRequest.sol";
     userInformation private user;
     usdt private USDT;
     rentDAO private dao;
-    // rentRequest private request;
+    rentRequest private request;
 
     // 房屋属性
     struct Property{
@@ -72,12 +72,12 @@ import "./rentRequest.sol";
         return true;
     }
 
-    // 拿到该用户的房源
+    // 拿到该用户的房源(用户)
     function getMyProperty()public view returns(Property[] memory){
         return propertiesByOwner[tx.origin];
     }
 
-    // 拿到全部用户的房源数量
+    // 拿到全部用户的房源数量(页面)
     function getAllProperty()public view returns(uint){
         return pm.propertyCount();
     }
@@ -128,24 +128,11 @@ import "./rentRequest.sol";
         return true;
     }
 
-    // 房东退还押金（需要用户先转USDT给合约）
-    function chargeback(
+    // 查看租房状态
+    function checkIsCompleted(
         uint _propertyId
-    ) external returns(bool){
-        //检查是否需要退还
-        require(dao.isPawned(_propertyId),"Market:don't need to chargeback");
-
-        // 进行押金退还（押金10%，转账金额）
-        (, , uint256 rentTimeStart, uint256 rentTimeEnd, , , ,) = dao.deals(_propertyId);
-        uint _monthCount = (rentTimeEnd - rentTimeStart) / 1 minutes;
-        uint _rentAmount = _monthCount * pm.getProperty(_propertyId).monthlyRent;
-        uint _deposite = ( _rentAmount * 10 ) / 100;
-
-        require(USDT.balanceOf(tx.origin) >= _deposite,"Market:balance not enough!");//这行报错
-        USDT.transfer(pm.getProperty(_propertyId).owner, _deposite);
-        dao.setIsPawned(_propertyId,false);
-
-        return true;
+    )external returns(bool){
+        return dao._checkIsCompleted(_propertyId);
     }
 
     // 用户发起评价
@@ -187,5 +174,25 @@ import "./rentRequest.sol";
         return dao._getDisputeResult(_propertyId);
     }
 
-    // 计算租房费用和押金
+    // 房东退还押金（需要用户先转USDT给合约）
+    function chargeback(
+        uint _propertyId
+    ) external returns(bool){
+        (address roomer,address landord, ,uint256 rentTimeStart, uint256 rentTimeEnd, , ,) = dao.deals(_propertyId);
+        // 检查地址是否为房东
+        require(tx.origin == landord,"Market:Only landord can do it!");
+        // 检查是否需要退还
+        require(dao.isPawned(_propertyId),"Market:don't need to chargeback");
+
+        // 进行押金退还（押金10%，转账金额）
+        uint _monthCount = (rentTimeEnd - rentTimeStart) / 1 minutes;
+        uint _rentAmount = _monthCount * pm.getProperty(_propertyId).monthlyRent;
+        uint _deposite = ( _rentAmount * 10 ) / 100;
+
+        require(USDT.balanceOf(tx.origin) >= _deposite,"Market:balance not enough!");
+        USDT.transfer(roomer, _deposite);
+        dao.setIsPawned(_propertyId,false);
+
+        return true;
+    }
  }

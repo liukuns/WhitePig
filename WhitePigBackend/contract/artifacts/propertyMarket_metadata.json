@@ -382,11 +382,11 @@
 			]
 		},
 		"propertyMarket.sol": {
-			"keccak256": "0x43f40f37affd71f0d225b24ab69fd249298be22072b6ae342b76498ff9f75ca8",
+			"keccak256": "0x8eb94fc4c1b75441e44b83bc0e3cb1f7ab980ac294d63252d6e9c34204d8b5ac",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://ebdfb6a639b1cb21dc3d6bab22266eb1df1c3aeba72dde926580c8185209c0f5",
-				"dweb:/ipfs/QmQ4QFLUEKRx9JSC1zpLpdLRzwty1UwmwRMF5KY85c73TK"
+				"bzz-raw://8e594f5fe916acbf2e683b5476b35049084ca8588ac6e21eb526533e76d3b231",
+				"dweb:/ipfs/QmRcMoZfzhWzp8QWQu3o9sHj91mSp9f1AHSgxNkD8scDEp"
 			]
 		},
 		"propertyRentERC20.sol": {

@@ -365,11 +365,11 @@
 	},
 	"sources": {
 		"propertyManagement.sol": {
-			"keccak256": "0x93fc5373629de7f1ec0314ca8cb03320ee5d0cbaccdf7d19c713bb5bd81f3ec5",
+			"keccak256": "0xe3e0be1f70f6d246b8ffc6a84646a54bdd333e8c9cac996c0e919074cf7f0f66",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://5c5eee277f5a3dfeb3548ddf38b374eaa116849dc6ef244b0d6a89008c8dc1b0",
-				"dweb:/ipfs/QmQZ5btyhEo4FFn1Nb6CpYjgZQDUn5UWzXmcASAfr2tqNv"
+				"bzz-raw://5881ec61665a2d0d0d4cab5413fd08b78ff2befada5ed39bdcc99f4ae1aa3e98",
+				"dweb:/ipfs/QmUGWdawUh5xhSU1dBKTXw5hk6KMjaHaEa6Abm1MYLK6Hi"
 			]
 		}
 	},

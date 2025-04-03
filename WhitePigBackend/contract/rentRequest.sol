@@ -61,7 +61,7 @@ contract rentRequest is IrentRequest{
     function getRentRequestById(
         uint _rentRequestId
     ) external view returns(RentRequest memory){
-        require(rentRequests[_rentRequestId].propertyId != 0,"Request:Request hasn't eexit!");
+        require(rentRequests[_rentRequestId].propertyId != 0,"Request:Request hasn't exit!");
 
         return rentRequests[_rentRequestId];
     }

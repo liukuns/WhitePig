@@ -81,11 +81,11 @@
 			]
 		},
 		"rentDAO.sol": {
-			"keccak256": "0x1f692c4048a01ba4fb43f68075ac5525b1849af77d309e0fe24aa29519eb5ca4",
+			"keccak256": "0x6e35a36e22cf716a246f4845a3933835acbdcdcb34a5c8c5baa5a0cc552b9977",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://bad87872c878c139b7123b59ac8ea62470272f152743334ce64b02fd93aa542e",
-				"dweb:/ipfs/QmPutpCav3xqTUaepF5D4P41bTd7wc2miQNkQg3GYvbpe9"
+				"bzz-raw://e928c2032ac47ae4252c45ea97f58cb230e39dd50ee21450a350b8d0ee7aa390",
+				"dweb:/ipfs/QmaTDE3ZpaLnUnMeLWtcJZ7xwtMQHNHnioiRSZvLuYuLVU"
 			]
 		},
 		"userInformation.sol": {

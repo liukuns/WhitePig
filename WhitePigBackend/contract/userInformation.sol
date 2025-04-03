@@ -19,9 +19,9 @@ contract userInformation is IUserInformation{
     mapping(address => UserInfo) private userInfos; // 用户地址对应的身份信息
     mapping(string => bool) private isBoundId;      // 判断数字身份证是否绑定过
 
-    uint256 constant INITIAL_REPUTATION = 60;    // 初始信誉积分
-    uint256 constant MAX_REPUTATION = 100;       // 信誉积分上限
-    uint constant private ANNUAL_INCREASE = 30;  // 信誉积分增长因子
+    uint256 constant INITIAL_REPUTATION = 60;     // 初始信誉积分
+    uint256 constant MAX_REPUTATION = 100;        // 信誉积分上限
+    uint constant private ANNUAL_INCREASE = 930;  // 信誉积分增长因子
 
     // 白名单用户设置信誉积分
     function setReputationWhiteUser(
@@ -82,6 +82,7 @@ contract userInformation is IUserInformation{
     )external returns(bool){
         uint _adjustment = calculateReputationIncrease(_currentScore,_dayRent);
         userInfos[_user].reputation =_adjustment;
+
         return true;
     }
 
@@ -140,11 +141,11 @@ contract userInformation is IUserInformation{
         return _isIdBound;
     }
 
-    // 用户完成一笔住房交易后信誉积分提高
+    // 用户完成一笔住房交易后信誉积分提高(修改为按月计算，同时1min代替1月)
     function calculateReputationIncrease(
         uint currentScore,
         uint daysRented
-    ) internal pure returns (uint) {
+    ) public pure returns (uint) {
         uint dailyIncreaseBase = ANNUAL_INCREASE * 1e18 / 365; // 扩大精度以避免浮点运算
         uint factor = (MAX_REPUTATION - currentScore) * 1e18 / MAX_REPUTATION; // 当前积分影响提升速度
         uint dailyIncrease = dailyIncreaseBase * factor / 1e18;
