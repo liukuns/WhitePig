@@ -1,35 +1,55 @@
 <template>
   <div class="dao-management">
-    <div class="header">
+    <div class="header" v-if="currentView === 'main'">
       <h2>DAO管理</h2>
       <p>管理您的去中心化自治组织</p>
     </div>
 
-    <div class="content">
+    <div class="content" v-if="currentView === 'main'">
+      <!-- 纠纷管理 -->
       <div class="card">
-        <h3>提案管理</h3>
-        <p>查看和管理所有提案。</p>
-        <button>查看提案</button>
+        <h3>纠纷管理</h3>
+        <p>处理纠纷投票、纠纷执行以及查看纠纷列表。</p>
+        <button @click="currentView = 'DisputeManagement'">管理纠纷</button>
       </div>
 
+      <!-- 内部提案管理 -->
       <div class="card">
-        <h3>成员管理</h3>
-        <p>管理DAO成员的权限和角色。</p>
-        <button>管理成员</button>
+        <h3>内部提案管理</h3>
+        <p>发起提案、提案投票以及查看提案列表。</p>
+        <button @click="currentView = 'ProposalManagement'">管理提案</button>
       </div>
 
+      <!-- DAO成员注册 -->
       <div class="card">
-        <h3>资金管理</h3>
-        <p>查看和分配DAO的资金。</p>
-        <button>管理资金</button>
+        <h3>DAO成员注册</h3>
+        <p>注册新成员并管理成员信息。</p>
+        <button @click="currentView = 'MemberRegistration'">注册成员</button>
       </div>
     </div>
+
+    <!-- 动态加载组件 -->
+    <component :is="currentView" v-else @goBack="currentView = 'main'" />
   </div>
 </template>
 
 <script>
+import DisputeManagement from './dao/DisputeManagement.vue';
+import ProposalManagement from './dao/ProposalManagement.vue';
+import MemberRegistration from './dao/MemberRegistration.vue';
+
 export default {
-  name: 'DaoManagement'
+  name: 'DaoManagement',
+  components: {
+    DisputeManagement,
+    ProposalManagement,
+    MemberRegistration
+  },
+  data() {
+    return {
+      currentView: 'main' // 默认显示主界面
+    };
+  }
 };
 </script>
 
@@ -86,14 +106,14 @@ export default {
 
 .card button {
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+  background-color: #000; /* 修改为黑色背景 */
+  color: #fff; /* 修改为白色文字 */
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .card button:hover {
-  background-color: #0056b3;
+  opacity: 0.9; /* 鼠标悬停时稍微变暗 */
 }
 </style>

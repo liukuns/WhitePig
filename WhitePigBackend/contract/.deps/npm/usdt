@@ -1,8 +1,0 @@
-/**
- * Minified by jsDelivr using Terser v5.37.0.
- * Original file: /npm/usdt@0.2.0/usdt.js
- *
- * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
- */
-const binding=require("./build/Release/usdt");USDTProvider=binding.USDTProvider,exports.USDTProvider=USDTProvider;
-//# sourceMappingURL=/sm/e7bb315c90ef6a28b8e66da5657d0574444551bba949f975da7ba277beada174.map

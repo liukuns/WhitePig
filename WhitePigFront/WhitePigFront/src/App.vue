@@ -6,7 +6,7 @@
         <h1 class="logo-text">White Pig</h1>
       </div>
       <button class="connect-wallet-btn" @click="connectWallet">
-        {{ walletConnected ? '已连接' : '连接钱包' }}
+        {{ walletConnected ? formattedWalletAddress : '连接钱包' }}
       </button>
     </header>
 
@@ -51,11 +51,21 @@ export default {
     };
   },
   methods: {
-    connectWallet() {
-      // 模拟连接钱包
-      this.walletConnected = true;
-      this.walletAddress = '0x12...3456';
-      alert('钱包已连接');
+    async connectWallet() {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          // 请求用户授权连接钱包
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          this.walletAddress = accounts[0]; // 获取用户的第一个钱包地址
+          this.walletConnected = true;
+          alert(`钱包已连接: ${this.walletAddress}`);
+        } catch (error) {
+          console.error('连接钱包失败:', error);
+          alert('连接钱包失败，请重试');
+        }
+      } else {
+        alert('未检测到 MetaMask，请安装 MetaMask 插件');
+      }
     },
     switchModule(moduleId) {
       this.activeModule = moduleId;
@@ -64,6 +74,38 @@ export default {
     viewTransactionDetails(transaction) {
       this.selectedTransaction = transaction; // 设置选中的交易详情
       this.activeModule = 'transactionDetails'; // 切换到交易详情模块
+    },
+    handleAccountsChanged(accounts) {
+      if (accounts.length === 0) {
+        // 用户断开连接
+        this.walletConnected = false;
+        this.walletAddress = '';
+        alert('钱包已断开连接');
+      } else {
+        // 更新钱包地址
+        this.walletAddress = accounts[0];
+        alert(`钱包地址已更新: ${this.walletAddress}`);
+      }
+    }
+  },
+  mounted() {
+    if (typeof window.ethereum !== 'undefined') {
+      // 监听账户变化
+      window.ethereum.on('accountsChanged', this.handleAccountsChanged);
+
+      // 检查当前连接状态
+      window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+        if (accounts.length > 0) {
+          this.walletAddress = accounts[0];
+          this.walletConnected = true;
+        }
+      });
+    }
+  },
+  beforeDestroy() {
+    if (typeof window.ethereum !== 'undefined') {
+      // 移除事件监听器
+      window.ethereum.removeListener('accountsChanged', this.handleAccountsChanged);
     }
   },
   components: {
@@ -93,6 +135,12 @@ export default {
         default:
           return null;
       }
+    },
+    formattedWalletAddress() {
+      if (this.walletAddress) {
+        return `${this.walletAddress.slice(0, 4)}...${this.walletAddress.slice(-4)}`;
+      }
+      return '';
     }
   }
 };
@@ -133,7 +181,7 @@ export default {
 }
 .connect-wallet-btn {
   width: 10%;
-  height: 90%;
+  height: 100%;
   margin-right: 5%;
   background-color: #000000;
   color: #ffffff;

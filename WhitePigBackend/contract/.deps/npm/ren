@@ -1,8 +1,0 @@
-/**
- * Minified by jsDelivr using Terser v5.39.0.
- * Original file: /npm/ren@0.3.1/ren.js
- *
- * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
- */
-"use strict";var EventEmitter=require("events").EventEmitter,inherit=require("util").inherits,RenderStream=require("./lib/RenderStream"),Ren=module.exports=function e(t){if(!(this instanceof e))return new e(t);this.opts=t||{},EventEmitter.call(this)};inherit(Ren,EventEmitter),Ren.prototype.render=function(e,t){for(var i in this.opts)void 0===t[i]&&(t[i]=this.opts[i]);var n=new RenderStream(e,t),r=this;return n.on("willRender",(function(e){r.emit("willRender",e)})),n.on("didRender",(function(e){r.emit("didRender",e)})),n};
-//# sourceMappingURL=/sm/178be04b2d2252182ca9e72cb9922383d3052f763ffe1f70cc514e57d4642ed5.map
