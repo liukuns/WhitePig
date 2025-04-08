@@ -11,15 +11,16 @@
 
       <button @click="sendVerificationCode">获取验证码</button>
 
-      <label v-if="verificationSent" for="verification-code">验证码:</label>
-      <input
-        v-if="verificationSent"
-        id="verification-code"
-        v-model="verificationCode"
-        placeholder="请输入验证码"
-      />
-
-      <button v-if="verificationSent" @click="verifyIdentity">验证身份</button>
+      <!-- 确保验证码输入框在发送验证码后显示 -->
+      <div v-if="verificationSent">
+        <label for="verification-code">验证码:</label>
+        <input
+          id="verification-code"
+          v-model="verificationCode"
+          placeholder="请输入验证码"
+        />
+        <button @click="verifyIdentity">验证身份</button>
+      </div>
     </div>
 
     <!-- 用户信息显示 -->
@@ -153,82 +154,146 @@
 </template>
 
 <script>
-import TransactionDetails from './TransactionDetails.vue';
 
 export default {
   name: 'UserInfo',
-  components: {
-    TransactionDetails
+  props: {
+    walletAddress: {
+      type: String,
+      required: true
+    },
+    userInformationContract: {
+      type: Object,
+      required: true
+    },
+    rentRequestContract: {
+      type: Object,
+      required: true
+    },
+    rentDAOContract: {
+      type: Object,
+      required: true
+    },
+    propertyManagementContract: {
+      type: Object,
+      required: true
+    }
   },
   data() {
     return {
       idNumber: '',
       phoneNumber: '',
       verificationCode: '',
-      verificationSent: false,
-      // isVerified: false,
-      isVerified: true,
-      digitalId: '1234567890abcdef',
-      walletAddress: '0x12...3456',
-      reputationScore: 85,
-      selectedContactRequest: null, // 高亮的联系请求索引
-      selectedRentalRequest: null, // 高亮的租房请求索引
-      selectedTransaction: null, // 高亮的租房交易索引
+      verificationSent: true,
+      isVerified: false,
+      digitalId: '',
+      reputationScore: 0,
       contactRequests: [
         {
           propertyId: '001',
-          receiver: '0x1234567890abcdef1234567890abcdef12345678',
-          content: '希望联系房东了解更多信息',
+          receiver: '0x1234...abcd',
+          content: '希望尽快联系房东。',
           isApproved: false
-        },
-        { propertyId: '002', receiver: '0xabcdef...', content: '联系房东', isApproved: true },
-        { propertyId: '003', receiver: '0x123456...', content: '联系房东', isApproved: false },
-        { propertyId: '004', receiver: '0xabcdef...', content: '联系房东', isApproved: true },
-        { propertyId: '005', receiver: '0x123456...', content: '联系房东', isApproved: false },
-        { propertyId: '006', receiver: '0xabcdef...', content: '联系房东', isApproved: true },
-        { propertyId: '007', receiver: '0x123456...', content: '联系房东', isApproved: false },
-        { propertyId: '008', receiver: '0xabcdef...', content: '联系房东', isApproved: true }
+        }
       ],
       rentalRequests: [
         {
           propertyId: '002',
-          receiver: '0xabcdef1234567890abcdef1234567890abcdef12',
-          content: '申请租房，请求批准',
+          receiver: '0x5678...efgh',
+          content: '申请租住此房源。',
           isApproved: true
-        },
-        { propertyId: '009', receiver: '0xabcdef...', content: '申请租房', isApproved: true },
-        { propertyId: '010', receiver: '0x123456...', content: '申请租房', isApproved: false },
-        { propertyId: '011', receiver: '0xabcdef...', content: '申请租房', isApproved: true },
-        { propertyId: '012', receiver: '0x123456...', content: '申请租房', isApproved: false },
-        { propertyId: '013', receiver: '0xabcdef...', content: '申请租房', isApproved: true },
-        { propertyId: '014', receiver: '0x123456...', content: '申请租房', isApproved: false },
-        { propertyId: '015', receiver: '0xabcdef...', content: '申请租房', isApproved: true }
+        }
       ],
       rentalTransactions: [
-        {
-          propertyId: '003',
-          startDate: '2023-01-01',
-          endDate: '2023-12-31',
-          isCompleted: true,
-          isDisputed: false,
-          contractCID: 'Qm1234567890abcdef'
-        },
-        { propertyId: '016', startDate: '2023-01-01', endDate: '2023-12-31', isCompleted: true, isDisputed: false, contractCID: 'Qm123...' },
-        { propertyId: '017', startDate: '2023-02-01', endDate: '2023-11-30', isCompleted: false, isDisputed: true, contractCID: 'Qm456...' },
-        { propertyId: '018', startDate: '2023-03-01', endDate: '2023-10-31', isCompleted: true, isDisputed: false, contractCID: 'Qm789...' },
-        { propertyId: '019', startDate: '2023-04-01', endDate: '2023-09-30', isCompleted: false, isDisputed: true, contractCID: 'Qmabc...' },
-        { propertyId: '020', startDate: '2023-05-01', endDate: '2023-08-31', isCompleted: true, isDisputed: false, contractCID: 'Qmdef...' },
-        { propertyId: '021', startDate: '2023-06-01', endDate: '2023-07-31', isCompleted: false, isDisputed: true, contractCID: 'Qmghi...' },
-        { propertyId: '022', startDate: '2023-07-01', endDate: '2023-06-30', isCompleted: true, isDisputed: false, contractCID: 'Qmjkl...' }
       ],
-      currentPage: 1, // 当前页码
-      itemsPerPage: 5, // 每页显示的条目数
-      contactCurrentPage: 1, // 联系请求当前页码
-      rentalCurrentPage: 1, // 租房请求当前页码
-      transactionCurrentPage: 1, // 租房交易当前页码
-      showTransactionDetails: false, // 控制是否显示交易详情
-      selectedTransactionDetails: null // 存储选中的交易详情
+      currentPage: 1,
+      itemsPerPage: 5,
+      contactCurrentPage: 1,
+      rentalCurrentPage: 1,
+      transactionCurrentPage: 1,
+      showTransactionDetails: false,
+      selectedTransactionDetails: null
     };
+  },
+  async created() {
+    try {
+      // 调用 userInformation 合约的 getUserInfo 函数
+      const userInfo = await this.userInformationContract.getUserInfo(this.walletAddress);
+      this.digitalId = userInfo.idHash;
+      this.reputationScore = userInfo.reputation;
+      this.phoneNumber = userInfo.number;
+      this.isVerified = userInfo.isBound;
+
+      // 调用 rentRequest 合约的 getConRequests 函数
+      try {
+        const conRequestIds = await this.rentRequestContract.getConRequests(true);
+        console.log('获取联系请求 ID 列表:', conRequestIds); // 打印原始返回值
+
+        // 遍历 ID 列表，通过 getConRequestById 获取具体的请求详情
+        this.contactRequests = await Promise.all(
+          conRequestIds.map(async (id) => {
+            const request = await this.rentRequestContract.getConRequestById(id);
+            return {
+              propertyId: request.propertyId,
+              receiver: request.lord,
+              content: request.content,
+              isApproved: request.approved
+            };
+          })
+        );
+      } catch (error) {
+        console.error('获取联系请求失败:', error);
+      }
+
+      // 调用 rentRequest 合约的 getRentRequests 函数
+      try {
+        const rentRequestIds = await this.rentRequestContract.getRentRequests(true);
+        console.log('获取租房请求 ID 列表:', rentRequestIds); // 打印原始返回值
+
+        // 遍历 ID 列表，通过 getRentRequestById 获取具体的请求详情
+        this.rentalRequests = await Promise.all(
+          rentRequestIds.map(async (id) => {
+            try {
+              const request = await this.rentRequestContract.getRentRequestById(id);
+              return {
+                propertyId: request.propertyId,
+                receiver: request.lord,
+                content: request.content,
+                isApproved: request.approved
+              };
+            } catch (error) {
+              console.warn(`跳过不存在的租房请求 ID: ${id}`, error);
+              return null; // 跳过不存在的请求
+            }
+          })
+        );
+
+        // 过滤掉 null 值的请求
+        this.rentalRequests = this.rentalRequests.filter(request => request !== null);
+      } catch (error) {
+        console.error('获取租房请求失败:', error);
+      }
+
+      // 调用 propertyManagement 合约的 propertyCount 函数
+      const propertyCount = await this.propertyManagementContract.propertyCount();
+
+      // 循环调用 rentDAO 合约的 deals 函数
+      for (let i = 0; i < propertyCount.toNumber(); i++) {
+        const deal = await this.rentDAOContract.deals(i);
+        if (deal.roomer.toLowerCase() === this.walletAddress.toLowerCase()) {
+          this.rentalTransactions.push({
+            propertyId: deal.propertyId,
+            startDate: new Date(deal.rentTimeStart * 1000).toISOString().split('T')[0],
+            endDate: new Date(deal.rentTimeEnd * 1000).toISOString().split('T')[0],
+            isCompleted: deal.isCompleted,
+            isDisputed: deal.isDisputed,
+            contractCID: deal.rentContract
+          });
+        }
+      }
+    } catch (error) {
+      console.error('加载用户信息失败:', error);
+    }
   },
   computed: {
     paginatedContactRequests() {
@@ -263,17 +328,29 @@ export default {
         return;
       }
       alert('验证码已发送到您的手机');
-      this.verificationSent = true;
+      this.verificationSent = true; // 确保状态更新，显示验证码输入框
+      console.log('验证码已发送到手机:', this.verificationSent); // 添加调试日志
     },
-    verifyIdentity() {
-      if (this.verificationCode === '1234') {
+    async verifyIdentity() {
+      if (!this.verificationCode) {
+        alert('请输入验证码');
+        return;
+      }
+      try {
+        const tx = await this.userInformationContract.verify(this.idNumber, this.phoneNumber);
+        await tx.wait(); // 等待交易完成
+        console.log('身份认证交易已完成:', tx);
         alert('身份认证成功');
         this.isVerified = true;
-      } else {
-        alert('验证码错误，请重试');
+      } catch (error) {
+        console.error('身份认证失败:', error);
+        alert('身份认证失败，请重试');
       }
     },
     shortenAddress(address) {
+      if (!address) {
+        return '未知地址'; // 如果地址为 undefined 或 null，返回默认值
+      }
       return address.length > 10 ? `${address.slice(0, 6)}...${address.slice(-4)}` : address;
     },
     viewTransactionDetails(transaction) {

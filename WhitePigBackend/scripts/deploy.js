@@ -20,6 +20,12 @@ async function main() {
   await propertyManagement.deployed();
   console.log("propertyManagement deployed to:", propertyManagement.address);
 
+  // 部署 rentRequest 合约
+  const RenRequest = await ethers.getContractFactory("rentRequest");
+  const renRequest = await RenRequest.deploy(propertyManagement.address,userInformation.address);
+  await renRequest.deployed();
+  console.log("renRequest deployed to:", renRequest.address);
+
   // 部署 propertyRentERC20 合约
   const PropertyRentERC20 = await ethers.getContractFactory("propertyRentERC20");
   const propertyRentERC20 = await PropertyRentERC20.deploy("PropertyRentERC20", "PRE20");

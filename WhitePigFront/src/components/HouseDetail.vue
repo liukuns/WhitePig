@@ -18,8 +18,8 @@
       <p><span class="label">描述:</span><span class="value">{{ house.description }}</span></p>
       <p><span class="label">型号:</span><span class="value">{{ house.type }}</span></p>
       <p><span class="label">房东信誉值:</span><span class="value">{{ landlordReputation }}</span></p>
-      <p><span class="label">房东钱包地址:</span><span class="value">{{ landlordWallet }}</span></p>
-    </div>
+      <p><span class="label">房东钱包地址:</span><span class="value">{{ house.owner }}</span></p>
+    </div> 
 
     <!-- 功能按钮 -->
     <div class="action-buttons">
@@ -37,9 +37,42 @@
         </li>
       </ul>
     </div>
+
+    <div v-if="showContactModal" class="modal-overlay">
+      <div class="modal">
+        <h3>发送租房联系请求</h3>
+        <textarea v-model="contactMessage" placeholder="请输入联系信息"></textarea>
+        <div class="modal-buttons">
+          <button @click="sendContactRequest">发送</button>
+          <button @click="closeContactModal">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showRentalModal" class="modal-overlay">
+      <div class="modal">
+        <h3>提交租房申请</h3>
+        <textarea v-model="rentalMessage" placeholder="请输入申请信息"></textarea>
+        <div class="modal-buttons">
+          <button @click="sendRentalRequest">提交</button>
+          <button @click="closeRentalModal">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showTransactionModal" class="modal-overlay">
+      <div class="modal">
+        <h3>提交租房交易</h3>
+        <input type="number" v-model="rentalMonths" placeholder="请输入租的月份" />
+        <input type="file" @change="handleFileUpload" />
+        <div class="modal-buttons">
+          <button @click="submitTransaction">提交</button>
+          <button @click="closeTransactionModal">取消</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-
 
 <script>
 import { create } from 'ipfs-http-client';
@@ -50,17 +83,37 @@ export default {
     house: {
       type: Object,
       required: true
+    },
+    userInformationContract: {
+      type: Object,
+      required: true
+    },
+    rentRequestContract: {
+      type: Object,
+      required: true
+    },
+    rentDAOContract: {
+      type: Object,
+      required: true
+    },
+    propertyManagementContract: {
+      type: Object,
+      required: true
+    },
+    propertyMarketContract: {
+      type: Object,
+      required: true
+    },
+    usdtContract: {
+      type: Object,
+      required: true
     }
   },
   data() {
     return {
-      images: [
-        "http://127.0.0.1:8080/ipfs/QmQyGEgaZs9QSswDZZADCXk9iXNSrvbbWQGUSGA45MKy9p",
-        "http://127.0.0.1:8080/ipfs/QmeWhGfXZkp6gA9PB1wZgJEBdFrw3FBAWe3jx5nj5qK26h"
-      ],
+      images: [], // 初始化为空数组
       currentImageIndex: 0,
-      landlordReputation: 90,
-      landlordWallet: '0x1234...abcd',
+      landlordReputation: 0,
       houseReviews: [
         '房子很干净，房东很友好。',
         '位置很好，交通便利。',
@@ -81,15 +134,23 @@ export default {
       return this.images[this.currentImageIndex];
     }
   },
-  created() {
-    // 初始化 IPFS 客户端，连接到本地 IPFS 节点
+  async created() {
+    try {
+      // 调用合约获取房东信誉值
+      this.landlordReputation = await this.userInformationContract.getUserReputation(this.house.owner);
+
+      // 设置图片轮播内容为 house.photos
+      this.images = this.house.image.split(','); // 假设 house.photos 是逗号分隔的字符串
+      console.log('房屋图片:', this.images);
+    } catch (error) {
+      console.error('初始化失败:', error);
+      alert('无法加载房屋详情，请稍后重试');
+    }
+
+    // 初始化 IPFS 客户端
     this.ipfsClient = create({
-      url: 'http://127.0.0.1:5001/api/v0' // 本地 IPFS 节点地址
+      url: 'http://127.0.0.1:5001/api/v0'
     });
-  },
-  beforeDestroy() {
-    // 清理可能的事件监听器或全局状态
-    this.$off(); // 移除所有组件级事件监听器
   },
   methods: {
     prevImage() {
@@ -107,13 +168,20 @@ export default {
       this.showContactModal = false; // 关闭弹窗
       this.contactMessage = ''; // 清空输入框
     },
-    sendContactRequest() {
+    async sendContactRequest() {
       if (this.contactMessage.trim() === '') {
         alert('请输入信息后再发送');
         return;
       }
-      alert(`已发送租房联系请求: ${this.contactMessage}`);
-      this.closeContactModal(); // 发送后关闭弹窗
+      try {
+        await this.rentRequestContract.sendConRequest(this.house.id, this.contactMessage);
+        alert('租房联系请求已发送！');
+      } catch (error) {
+        console.error('发送租房联系请求失败:', error);
+        alert('发送失败，请稍后重试！');
+      } finally {
+        this.closeContactModal(); // 发送后关闭弹窗
+      }
     },
     openRentalModal() {
       this.showRentalModal = true; // 打开租房申请弹窗
@@ -122,13 +190,20 @@ export default {
       this.showRentalModal = false; // 关闭租房申请弹窗
       this.rentalMessage = ''; // 清空输入框
     },
-    sendRentalRequest() {
+    async sendRentalRequest() {
       if (this.rentalMessage.trim() === '') {
         alert('请输入申请信息后再提交');
         return;
       }
-      alert(`已提交租房申请: ${this.rentalMessage}`);
-      this.closeRentalModal(); // 提交后关闭弹窗
+      try {
+        await this.rentRequestContract.sendRentRequest(this.house.id, this.rentalMessage);
+        alert('租房申请已提交！');
+      } catch (error) {
+        console.error('提交租房申请失败:', error);
+        alert('提交失败，请稍后重试！');
+      } finally {
+        this.closeRentalModal(); // 提交后关闭弹窗
+      }
     },
     openTransactionModal() {
       this.showTransactionModal = true; // 打开租房交易弹窗
@@ -148,23 +223,31 @@ export default {
       }
 
       try {
-        // 模拟上传到 IPFS
-        const ipfsLink = await this.uploadToIPFS(this.contractFile);
-        console.log('IPFS 上传成功:', ipfsLink);
-        // 提交租房交易
+        // 计算租房所需金额
+        const totalAmount = this.house.rent * this.rentalMonths;
+
+        console.log(this.usdtContract);
+
+        // 调用 USDT 合约的 transfer 方法，设置更高的 gas 上限
+        const propertyMarketAddress = this.propertyMarketContract.address;
+        await this.usdtContract.transfer(propertyMarketAddress, totalAmount, {
+          gasLimit: 100000 // 提高 gas 上限
+        });
+        console.log(`USDT 转账成功: ${totalAmount} 转给 ${propertyMarketAddress}`);
+
+        // 上传文件到 IPFS
+        const added = await this.ipfsClient.add(this.contractFile);
+        const ipfsLink = `http://127.0.0.1:8080/ipfs/${added.path}`; // 本地 IPFS 网关地址
+
+        console.log(this.propertyMarketContract);
+
+        // 调用合约的 rent 函数
+        await this.propertyMarketContract.rent(this.house.id, this.rentalMonths, ipfsLink);
         alert(`租房交易已提交: 月份=${this.rentalMonths}, 合同链接=${ipfsLink}`);
         this.closeTransactionModal();
       } catch (error) {
-        console.error('IPFS 上传失败:', error);
-        alert('上传失败，请重试');
-      }
-    },
-    async uploadToIPFS(file) {
-      try {
-        const added = await this.ipfsClient.add(file);
-        return `http://127.0.0.1:8080/ipfs/${added.path}`; // 本地 IPFS 网关地址
-      } catch (error) {
-        throw new Error('IPFS 上传失败');
+        console.error('租房交易提交失败:', error);
+        alert('提交失败，请稍后重试');
       }
     }
   }
@@ -235,16 +318,6 @@ button {
 
 .action-buttons button {
   flex: 1;
-  padding: 10px;
-  background-color: #000000;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.action-buttons button:hover {
-  background-color: #60666c;
 }
 
 .history-section {
@@ -256,6 +329,7 @@ button {
 
 .history-section h3 {
   margin-bottom: 10px;
+  color: #60666c;
 }
 
 .history-section ul {
@@ -277,7 +351,6 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
 
 .modal {

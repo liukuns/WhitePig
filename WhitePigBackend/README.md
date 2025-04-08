@@ -12,6 +12,7 @@ propertyRentERC20 deployed to:
 0xd5F4c7E50346395321f99F0947349ac908903390
 rentDAO deployed to: 0x7bF32d1d7365AD1eeA3239846133dad21a1C2355
 propertyMarket deployed to: 0x56Afb1298Fa8898241D91E65d23eb87d49c7C30A
+renRequest deployed to: 0x860f6e00e332FDD6ee864c968324817C83e4Ba57
 
 npx hardhat help
 npx hardhat test

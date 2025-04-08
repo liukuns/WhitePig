@@ -16,11 +16,11 @@
       </div>
       <div class="info-item">
         <span class="label">是否可租:</span>
-        <span class="value">{{ isRentable(property.id) ? '是' : '否' }}</span>
+        <span class="value">{{ property.isAvailable }}</span>
       </div>
       <div class="info-item">
         <span class="label">是否下架:</span>
-        <span class="value">{{ isRemoved(property.id) ? '是' : '否' }}</span>
+        <span class="value">{{ property.isWithdraw }}</span>
       </div>
     </section>
 
@@ -139,6 +139,14 @@ export default {
     property: {
       type: Object,
       required: true
+    },
+    propertyManagementContract: {
+      type: Object,
+      required: true
+    },
+    rentRequestContract: {
+      type: Object,
+      required: true
     }
   },
   data() {
@@ -149,35 +157,42 @@ export default {
       modalInput: '',
       currentAction: '',
       modalHint: '',
-      contactRequests: [
-        { sender: '0x1234...abcd', message: '我想租这套房子', approved: false },
-        { sender: '0x5678...efgh', message: '请问房子还在吗？', approved: false },
-        { sender: '0x9abc...def0', message: '租金可以再商量吗？', approved: false },
-        { sender: '0x1111...2222', message: '房子周围环境怎么样？', approved: false },
-        { sender: '0x3333...4444', message: '我有兴趣，什么时候可以看房？', approved: false },
-        { sender: '0x5555...6666', message: '房子是否允许养宠物？', approved: false },
-        { sender: '0x7777...8888', message: '房子是否有停车位？', approved: false },
-        { sender: '0x9999...aaaa', message: '房子是否有家具？', approved: false },
-        { sender: '0xbbbb...cccc', message: '房子租期是否可以灵活调整？', approved: false }
-      ],
+      contactRequests: [],
       approvalModalVisible: false,
       currentRequestIndex: null,
       pageSize: 5,
       currentPage: 1,
-      rentalRequests: [
-        { sender: '0x1234...abcd', message: '我想租 6 个月', approved: false },
-        { sender: '0x5678...efgh', message: '租期 12 个月可以优惠吗？', approved: false },
-        { sender: '0x9abc...def0', message: '我只需要租 3 个月', approved: false },
-        { sender: '0x1111...2222', message: '租 9 个月，房子是否有家具？', approved: false },
-        { sender: '0x3333...4444', message: '租 1 个月短期使用', approved: false },
-        { sender: '0x5555...6666', message: '租 24 个月，能否签长期合同？', approved: false },
-        { sender: '0x7777...8888', message: '租 18 个月，是否可以养宠物？', approved: false }
-      ],
+      rentalRequests: [],
       rentalApprovalModalVisible: false,
       currentRentalRequestIndex: null,
       rentalPageSize: 5,
       rentalCurrentPage: 1
     };
+  },
+  async created() {
+    try {
+      const allContactRequests = await this.rentRequestContract.getConRequests(false);
+      this.contactRequests = allContactRequests
+        .filter(request => request.propertyId === this.property.id)
+        .map(request => ({
+          sender: request.sender,
+          message: request.content,
+          approved: request.approved
+        }));
+
+      const allRentalRequests = await this.rentRequestContract.getRentRequests(false);
+      this.rentalRequests = allRentalRequests
+        .filter(request => request.propertyId === this.property.id)
+        .map(request => ({
+          sender: request.sender,
+          message: request.content,
+          months: request.months,
+          approved: request.approved
+        }));
+    } catch (error) {
+      console.error('获取请求失败:', error);
+      alert('无法加载请求，请稍后重试');
+    }
   },
   computed: {
     totalPages() {
@@ -231,19 +246,39 @@ export default {
       this.modalVisible = false;
       this.modalInput = '';
     },
-    handleModalConfirm() {
-      if (this.currentAction === 'removedStatus') {
-        const newStatus = this.modalInput.toLowerCase() === 'true';
-        console.log(`更新下架状态为: ${newStatus}`);
-      } else if (this.currentAction === 'rent') {
-        const newRent = parseFloat(this.modalInput);
-        if (!isNaN(newRent)) {
-          console.log(`更新月租金为: ¥${newRent}`);
+    async handleModalConfirm() {
+      console.log('合约实例:', this.propertyManagementContract);
+      try {
+        if (this.currentAction === 'removedStatus') {
+          const newStatus = this.modalInput.toLowerCase() === 'true';
+          await this.propertyManagementContract.updateWithdrawal(this.property.id, newStatus);
+          alert('下架状态更新成功！');
+          this.property.isWithdraw = newStatus; // 更新本地状态
+        } else if (this.currentAction === 'rent') {
+          const newRent = parseFloat(this.modalInput);
+          if (!isNaN(newRent)) {
+            await this.propertyManagementContract.updateMonthlyRent(this.property.id, newRent);
+            alert('月租金更新成功！');
+            this.property.rent = newRent; // 更新本地状态
+          } else {
+            alert('请输入有效的月租金！');
+          }
+        } else if (this.currentAction === 'description') {
+          const newDescription = this.modalInput.trim();
+          if (newDescription) {
+            await this.propertyManagementContract.updateMonthlyDescription(this.property.id, newDescription);
+            alert('房屋描述更新成功！');
+            this.property.description = newDescription; // 更新本地状态
+          } else {
+            alert('房屋描述不能为空！');
+          }
         }
-      } else if (this.currentAction === 'description') {
-        console.log(`更新房屋描述为: ${this.modalInput}`);
+      } catch (error) {
+        console.error('更新失败:', error);
+        alert('更新失败，请重试！');
+      } finally {
+        this.closeModal();
       }
-      this.closeModal();
     },
     prevPage() {
       if (this.currentPage > 1) {
@@ -259,17 +294,31 @@ export default {
       this.currentRequestIndex = index;
       this.approvalModalVisible = true;
     },
-    approveRequest() {
-      if (this.currentRequestIndex !== null) {
-        this.contactRequests[this.currentRequestIndex].approved = true;
+    async approveRequest() {
+      try {
+        const requestId = this.contactRequests[this.currentRequestIndex].id;
+        await this.rentRequestContract.handleConRequest(requestId, true);
+        alert('请求已同意！');
+        this.contactRequests[this.currentRequestIndex].approved = true; // 更新本地状态
+      } catch (error) {
+        console.error('处理请求失败:', error);
+        alert('处理请求失败，请稍后重试！');
+      } finally {
+        this.closeApprovalModal();
       }
-      this.closeApprovalModal();
     },
-    rejectRequest() {
-      if (this.currentRequestIndex !== null) {
-        this.contactRequests[this.currentRequestIndex].approved = false;
+    async rejectRequest() {
+      try {
+        const requestId = this.contactRequests[this.currentRequestIndex].id;
+        await this.rentRequestContract.handleConRequest(requestId, false);
+        alert('请求已拒绝！');
+        this.contactRequests[this.currentRequestIndex].approved = false; // 更新本地状态
+      } catch (error) {
+        console.error('处理请求失败:', error);
+        alert('处理请求失败，请稍后重试！');
+      } finally {
+        this.closeApprovalModal();
       }
-      this.closeApprovalModal();
     },
     closeApprovalModal() {
       this.approvalModalVisible = false;
@@ -289,17 +338,31 @@ export default {
       this.currentRentalRequestIndex = index;
       this.rentalApprovalModalVisible = true;
     },
-    approveRentalRequest() {
-      if (this.currentRentalRequestIndex !== null) {
-        this.rentalRequests[this.currentRentalRequestIndex].approved = true;
+    async approveRentalRequest() {
+      try {
+        const requestId = this.rentalRequests[this.currentRentalRequestIndex].id;
+        await this.rentRequestContract.handleRentRequest(requestId, true);
+        alert('租房请求已同意！');
+        this.rentalRequests[this.currentRentalRequestIndex].approved = true; // 更新本地状态
+      } catch (error) {
+        console.error('处理租房请求失败:', error);
+        alert('处理租房请求失败，请稍后重试！');
+      } finally {
+        this.closeRentalApprovalModal();
       }
-      this.closeRentalApprovalModal();
     },
-    rejectRentalRequest() {
-      if (this.currentRentalRequestIndex !== null) {
-        this.rentalRequests[this.currentRentalRequestIndex].approved = false;
+    async rejectRentalRequest() {
+      try {
+        const requestId = this.rentalRequests[this.currentRentalRequestIndex].id;
+        await this.rentRequestContract.handleRentRequest(requestId, false);
+        alert('租房请求已拒绝！');
+        this.rentalRequests[this.currentRentalRequestIndex].approved = false; // 更新本地状态
+      } catch (error) {
+        console.error('处理租房请求失败:', error);
+        alert('处理租房请求失败，请稍后重试！');
+      } finally {
+        this.closeRentalApprovalModal();
       }
-      this.closeRentalApprovalModal();
     },
     closeRentalApprovalModal() {
       this.rentalApprovalModalVisible = false;

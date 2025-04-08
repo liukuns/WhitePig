@@ -27,6 +27,13 @@
           :transaction="selectedTransaction"
           @view-transaction="viewTransactionDetails"
           @go-back="switchModule('userInfo')"
+          :walletAddress="walletAddress"
+          :userInformationContract="userInformationContract"
+          :rentRequestContract="rentRequestContract"
+          :rentDAOContract="rentDAOContract"
+          :propertyManagementContract="propertyManagementContract"
+          :propertyMarketContract="propertyMarketContract"
+          :usdtContract="usdtContract"
         ></component>
       </div>
     </div>
@@ -40,6 +47,13 @@ import RentalMarket from './components/RentalMarket.vue';
 import LearnMore from './components/LearnMore.vue';
 import TransactionDetails from './components/TransactionDetails.vue';
 import UserProperties from './components/UserProperties.vue';
+import { ethers } from 'ethers';
+import { userInformationABI } from './assets/abi/userInformationABI.js';
+import { rentRequestABI } from './assets/abi/rentRequestABI.js';
+import { rentDAOABI } from './assets/abi/rentDAOABI.js';
+import { propertyManagementABI } from './assets/abi/propertyManagementABI.js';
+import { propertyMarketABI } from './assets/abi/propertyMarketABI.js';
+import { usdtABI } from './assets/abi/usdtABI.js';
 
 export default {
   data() {
@@ -47,7 +61,13 @@ export default {
       walletConnected: false,
       walletAddress: '',
       activeModule: 'rentalMarket', // 默认显示租房市场
-      selectedTransaction: null // 存储选中的交易详情
+      selectedTransaction: null, // 存储选中的交易详情
+      userInformationContract: null,
+      rentRequestContract: null,
+      rentDAOContract: null,
+      propertyManagementContract: null,
+      propertyMarketContract: null,
+      usdtContract: null // 添加 USDT 合约实例
     };
   },
   methods: {
@@ -84,8 +104,53 @@ export default {
       } else {
         // 更新钱包地址
         this.walletAddress = accounts[0];
-        alert(`钱包地址已更新: ${this.walletAddress}`);
       }
+    }
+  },
+  async created() {
+    if (typeof window.ethereum === 'undefined') {
+      alert('请安装 MetaMask 或其他以太坊钱包插件');
+      return;
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    try {
+      // 获取钱包地址
+      const accounts = await provider.send('eth_requestAccounts', []);
+      this.walletAddress = accounts[0];
+
+      // 初始化 userInformation 合约实例
+      const userInformationAddress = '0xD907fdb109029BE0371c25cA0FB8E18902aE0bf5'; // 替换为实际地址
+      this.userInformationContract = new ethers.Contract(userInformationAddress, userInformationABI, signer);
+
+      // 初始化 rentRequest 合约实例
+      const rentRequestAddress = '0x860f6e00e332FDD6ee864c968324817C83e4Ba57'; // 替换为实际地址
+      this.rentRequestContract = new ethers.Contract(rentRequestAddress, rentRequestABI, signer);
+
+      // 初始化 rentDAO 合约实例
+      const rentDAOAddress = '0x7bF32d1d7365AD1eeA3239846133dad21a1C2355'; // 替换为实际地址
+      this.rentDAOContract = new ethers.Contract(rentDAOAddress, rentDAOABI, signer);
+
+      // 初始化 propertyManagement 合约实例
+      const propertyManagementAddress = '0x732FA45AfA8AEC34aabe6a04471F7aFac3726683'; // 替换为实际地址
+      this.propertyManagementContract = new ethers.Contract(propertyManagementAddress, propertyManagementABI, signer);
+
+      // 初始化 propertyMarket 合约实例
+      const propertyMarketAddress = '0x56Afb1298Fa8898241D91E65d23eb87d49c7C30A'; // 替换为实际地址
+      this.propertyMarketContract = new ethers.Contract(propertyMarketAddress, propertyMarketABI, signer);
+      console.log(this.propertyMarketContract);
+
+      // 初始化 USDT 合约实例
+      const usdtAddress = '0xbc28001765Fe7677Eeb51813456C452813e36E9e'; // 替换为实际 USDT 合约地址
+      this.usdtContract = new ethers.Contract(usdtAddress, usdtABI, signer);
+      console.log(this.usdtContract);
+
+      console.log('合约实例已初始化');
+    } catch (error) {
+      console.error('初始化合约实例失败:', error);
+      alert('初始化失败，请检查您的以太坊环境');
     }
   },
   mounted() {

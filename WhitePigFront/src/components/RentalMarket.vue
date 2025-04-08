@@ -62,6 +62,12 @@
       v-else 
       :house="selectedHouse" 
       @go-back="showDetails = false"
+      :userInformationContract="userInformationContract"
+      :rentRequestContract="rentRequestContract"
+      :rentDAOContract="rentDAOContract"
+      :propertyManagementContract="propertyManagementContract"
+      :propertyMarketContract="propertyMarketContract"
+      :usdtContract="usdtContract"
     />
   </div>
 </template>
@@ -71,6 +77,32 @@ import HouseDetail from './HouseDetail.vue';
 
 export default {
   name: 'RentalMarket',
+  props: {
+    propertyManagementContract: {
+      type: Object,
+      required: true
+    },
+    propertyMarketContract: {
+      type: Object,
+      required: true
+    },
+    userInformationContract: {
+      type: Object,
+      required: true
+    },
+    rentRequestContract: {
+      type: Object,
+      required: true
+    },
+    rentDAOContract: {
+      type: Object,
+      required: true
+    },
+    usdtContract: {
+      type: Object,
+      required: true
+    }
+  },
   components: {
     HouseDetail
   },
@@ -85,120 +117,7 @@ export default {
         min: 0,
         max: 10000
       },
-      houses: [
-        {
-          id: 1,
-          image: 'house1.jpg',
-          location: '锦江区',
-          description: '靠近地铁，交通便利。',
-          type: '一室一厅'
-        },
-        {
-          id: 2,
-          image: 'house2.jpg',
-          location: '青羊区',
-          description: '环境优美，设施齐全。',
-          type: '两室一厅'
-        },
-        {
-          id: 3,
-          image: 'house3.jpg',
-          location: '武侯区',
-          description: '适合家庭居住，周边配套完善。',
-          type: '三室一厅'
-        },
-        {
-          id: 4,
-          image: 'house4.jpg',
-          location: '成华区',
-          description: '新装修，拎包入住。',
-          type: '一室一厅'
-        },
-        {
-          id: 5,
-          image: 'house5.jpg',
-          location: '锦江区',
-          description: '靠近商圈，生活便利。',
-          type: '两室一厅'
-        },
-        {
-          id: 6,
-          image: 'house6.jpg',
-          location: '青羊区',
-          description: '安静舒适，适合居住。',
-          type: '三室一厅'
-        },
-        {
-          id: 7,
-          image: 'house7.jpg',
-          location: '武侯区',
-          description: '交通便利，生活方便。',
-          type: '一室一厅'
-        },
-        {
-          id: 8,
-          image: 'house8.jpg',
-          location: '成华区',
-          description: '新装修，拎包入住。',
-          type: '两室一厅'
-        },
-        {
-          id: 9,
-          image: 'house9.jpg',
-          location: '锦江区',
-          description: '靠近商圈，生活便利。',
-          type: '三室一厅'
-        },
-        {
-          id: 10,
-          image: 'house10.jpg',
-          location: '青羊区',
-          description: '安静舒适，适合居住。',
-          type: '一室一厅'
-        },
-        {
-          id: 11,
-          image: 'house11.jpg',
-          location: '武侯区',
-          description: '交通便利，生活方便。',
-          type: '两室一厅'
-        },
-        {
-          id: 12,
-          image: 'house12.jpg',
-          location: '成华区',
-          description: '新装修，拎包入住。',
-          type: '三室一厅'
-        },
-        {
-          id: 13,
-          image: 'house13.jpg',
-          location: '锦江区',
-          description: '靠近商圈，生活便利。',
-          type: '一室一厅'
-        },
-        {
-          id: 14,
-          image: 'house14.jpg',
-          location: '青羊区',
-          description: '安静舒适，适合居住。',
-          type: '两室一厅'
-        },
-        {
-          id: 15,
-          image: 'house15.jpg',
-          location: '武侯区',
-          description: '交通便利，生活方便。',
-          type: '三室一厅'
-        },
-        {
-          id: 16,
-          image: 'house16.jpg',
-          location: '成华区',
-          description: '新装修，拎包入住。',
-          type: '一室一厅'
-        }
-      ],
+      houses: [],
       showDetails: false, // 控制是否显示房屋详情
       selectedHouse: null, // 存储选中的房屋信息
       rentalRequests: [
@@ -216,6 +135,32 @@ export default {
         }
       ]
     };
+  },
+  async created() {
+    try {
+      const propertyCount = await this.propertyManagementContract.propertyCount();
+      const housesData = [];
+
+      for (let i = 1; i <= propertyCount; i++) {
+        const property = await this.propertyManagementContract.getProperty(i);
+        if (property.isAvailable && !property.isWithdraw) {
+          housesData.push({
+            id: property.propertyId,
+            image: property.photos,
+            location: property.location,
+            description: property.description,
+            type: property.propertyType,
+            rent: property.monthlyRent,
+            owner: property.owner
+          });
+        }
+      }
+
+      this.houses = housesData;
+    } catch (error) {
+      console.error('获取房屋信息失败:', error);
+      alert('无法加载房屋信息，请稍后重试');
+    }
   },
   methods: {
     search() {
