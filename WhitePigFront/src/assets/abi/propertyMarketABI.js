@@ -148,7 +148,7 @@ export const propertyMarketABI = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_propertyId",
+        "name": "_dealId",
         "type": "uint256"
       }
     ],
@@ -265,6 +265,47 @@ export const propertyMarketABI = [
         "internalType": "struct propertyMarket.Property[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_propertyId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "getRemark",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "grade",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "wards",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isRemark",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IRentDeal.Remark",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",

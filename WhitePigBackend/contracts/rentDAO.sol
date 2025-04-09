@@ -54,15 +54,17 @@ contract rentDAO is IUserInformation,IRentDeal{
     userInformation internal user;
     propertyRentERC20 internal rrt;
 
-    mapping(address => bool) private members;        // DAO成员列表
-    mapping(uint256 => Proposal) private proposals;  // 提案列表
-    mapping(uint => Deal)public deals;              // 交易列表
-    mapping(uint => Dispute)public disputes;        // 纠纷列表
-    mapping(uint dealId=> mapping(address => Remark)) private remarks;   // 评价列表
-    mapping(uint => bool) public isPawned;          // 是否提交押金
+    mapping(address => bool) private members;             // DAO成员列表
+    mapping(uint256 => Proposal) private proposals;       // 提案列表
+    mapping(uint => Deal)public deals;                    // 交易列表
+    mapping(uint => Dispute)public disputes;              // 纠纷列表
+    mapping(uint => mapping(address => bool))public  isVoteDispute; // 是否投票
+    mapping(uint dealId=> mapping(address => Remark)) public remarks;   // 评价列表
+    mapping(uint => bool) public isPawned;                // 是否提交押金
 
     uint256 public proposalCount;                   // 提案计数
     uint public disputeCount;                       // 纠纷计数
+    uint public dealCount;                          // 交易计数
 
     event MemberRegistered(address member);
     event ProposalCreated(uint256 proposalId, string description, address proposer);
@@ -90,11 +92,12 @@ contract rentDAO is IUserInformation,IRentDeal{
         emit MemberRegistered(msg.sender);
     }
 
-    // DAO成员纠纷投票(1)投了还可以投
+    // DAO成员纠纷投票
     function voteOnDispute(
         uint disputeId,
         bool support
     ) external onlyMember {
+        require(!isVoteDispute[disputeId][tx.origin],"DAO:you have voted!");
         require(block.timestamp <= disputes[disputeId].deadline, "DAO:Voting period has ended");
         require(!disputes[disputeId].executed, "DAO:Dispute already executed");
 
@@ -105,6 +108,7 @@ contract rentDAO is IUserInformation,IRentDeal{
         }
 
         rrt.mint(1e18);
+        isVoteDispute[disputeId][tx.origin] = true;
 
         emit Voted(disputeId, msg.sender, support);
     }
@@ -194,7 +198,7 @@ contract rentDAO is IUserInformation,IRentDeal{
     ) public returns(bool){
         uint end = deals[_propertyId].rentTimeStart;
 
-        if(block.timestamp >= end){
+        if(block.timestamp >= end && !deals[_propertyId].isCompleted){
             deals[_propertyId].isCompleted = true;
             return true;
         }
@@ -209,9 +213,17 @@ contract rentDAO is IUserInformation,IRentDeal{
 
     // 查看纠纷结果（内部）
     function _getDisputeResult(
-        uint _propertyId
+        uint _disputeId
     ) external view returns(Dispute memory){
-        return disputes[_propertyId];
+        return disputes[_disputeId];
+    }
+
+    // 查看评价结果（内部）
+    function _getRemark(
+        uint _propertyId,
+        address _owner
+    )external view returns(Remark memory){
+        return remarks[_propertyId][_owner];
     }
 
     // 添加一笔租房交易（内部）
@@ -227,10 +239,12 @@ contract rentDAO is IUserInformation,IRentDeal{
     )external returns(bool){
         require(_roomer != address(0) && _landord != address(0),"");
 
+        dealCount++;
+
         deals[_propertyId] = Deal({
             roomer: _roomer,
             landord: _landord,
-            propertyId: _propertyId,
+            propertyId: dealCount,
             rentTimeStart: _rentTimeStart,
             rentTimeEnd: _rentTimeEnd,
             isCompleted: _isCompleted,
@@ -285,7 +299,7 @@ contract rentDAO is IUserInformation,IRentDeal{
         }
     }
 
-    // 用户提交纠纷
+    // 用户提交纠纷（内部）
     function submitDispute(
         uint dealId,
         string memory description,

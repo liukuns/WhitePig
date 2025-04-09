@@ -8,7 +8,7 @@
       </div>
       <div class="info-item">
         <span class="label">月租金:</span>
-        <span class="value">¥{{ property.rent }}</span>
+        <span class="value">¥{{ property.rent }}</span> <!-- 去掉 18 位精度 -->
       </div>
       <div class="info-item">
         <span class="label">房屋类型:</span>
@@ -171,24 +171,52 @@ export default {
   },
   async created() {
     try {
-      const allContactRequests = await this.rentRequestContract.getConRequests(false);
-      this.contactRequests = allContactRequests
-        .filter(request => request.propertyId === this.property.id)
-        .map(request => ({
-          sender: request.sender,
-          message: request.content,
-          approved: request.approved
-        }));
+      // 获取所有联系请求 ID
+      const allContactRequestIds = await this.rentRequestContract.getConRequests(false);
+      console.log('所有联系请求 ID:', allContactRequestIds);
+      this.contactRequests = await Promise.all(
+        allContactRequestIds.map(async (id) => {
+          try {
+            const request = await this.rentRequestContract.getConRequestById(id);
+            if (request.propertyId === this.property.id) {
+              return {
+                sender: request.sender,
+                message: request.content,
+                approved: request.approved
+              };
+            }
+          } catch (error) {
+            console.error(`获取联系请求失败 (ID: ${id}):`, error);
+          }
+          return null; // 过滤掉失败的请求
+        })
+      );
+      console.log('联系请求:', this.contactRequests);
+      this.contactRequests = this.contactRequests.filter(request => request !== null);
 
-      const allRentalRequests = await this.rentRequestContract.getRentRequests(false);
-      this.rentalRequests = allRentalRequests
-        .filter(request => request.propertyId === this.property.id)
-        .map(request => ({
-          sender: request.sender,
-          message: request.content,
-          months: request.months,
-          approved: request.approved
-        }));
+      // 获取所有租房请求 ID
+      const allRentalRequestIds = await this.rentRequestContract.getRentRequests(false);
+      console.log('所有租房请求 ID:', allRentalRequestIds);
+      this.rentalRequests = await Promise.all(
+        allRentalRequestIds.map(async (id) => {
+          try {
+            const request = await this.rentRequestContract.getRentRequestById(id);
+            if (request.propertyId === this.property.id) {
+              return {
+                sender: request.sender,
+                message: request.content,
+                months: request.months,
+                approved: request.approved
+              };
+            }
+          } catch (error) {
+            console.error(`获取租房请求失败 (ID: ${id}):`, error);
+          }
+          return null; // 过滤掉失败的请求
+        })
+      );
+      this.rentalRequests = this.rentalRequests.filter(request => request !== null);
+
     } catch (error) {
       console.error('获取请求失败:', error);
       alert('无法加载请求，请稍后重试');

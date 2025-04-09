@@ -18,8 +18,8 @@ interface IrentRequest {
 
     // 租房请求
     struct RentRequest {
-        uint sendRentRequestId;  // 租房请求id
-        address roomer;          // 发送方
+        uint rentRequestId;  // 租房请求id
+        address sender;          // 发送方
         address lord;            // 接收方
         uint propertyId;         // 房源编号
         string content;          // 是否同意
@@ -35,9 +35,9 @@ contract rentRequest is IrentRequest{
     mapping(uint => RentRequest) private rentRequests;          // 租房请求列表
 
     mapping(address => uint[]) private sendConRequests;         // 房客 发起的联系请求列表
-    mapping(address => uint[]) private receivedConRequests;     // 房东 收到的联系请求列表
-
     mapping(address => uint[]) private sendRentRequests;        // 房客 发起的租房请求列表
+
+    mapping(address => uint[]) private receivedConRequests;     // 房东 收到的联系请求列表
     mapping(address => uint[]) private receivedRentRequests;    // 房东 收到的租房请求列表
 
     uint public conRequestCount;// 联系请求计数器
@@ -52,7 +52,7 @@ contract rentRequest is IrentRequest{
     function getConRequestById(
         uint _conRequestId
     ) external view returns(ConRequest memory){
-        require(conRequests[_conRequestId].propertyId != 0,"Request:Request hasn't eexit!");
+        require(conRequests[_conRequestId].propertyId != 0,"Request:conRequest hasn't exit!");
 
         return conRequests[_conRequestId];
     }
@@ -61,7 +61,7 @@ contract rentRequest is IrentRequest{
     function getRentRequestById(
         uint _rentRequestId
     ) external view returns(RentRequest memory){
-        require(rentRequests[_rentRequestId].propertyId != 0,"Request:Request hasn't exit!");
+        require(rentRequests[_rentRequestId].propertyId != 0,"rentRequest:rentRequest hasn't exit!");
 
         return rentRequests[_rentRequestId];
     }
@@ -133,8 +133,8 @@ contract rentRequest is IrentRequest{
         require(owner != address(0),"Request:Invalid property ID!");
 
         rentRequestCount++;
-        conRequests[rentRequestCount] = ConRequest({
-            conRequestId: rentRequestCount,
+        rentRequests[rentRequestCount] = RentRequest({
+            rentRequestId: rentRequestCount,
             sender: tx.origin,
             lord: owner,
             propertyId:_propertyId,
@@ -152,7 +152,7 @@ contract rentRequest is IrentRequest{
         uint _rentRequestId,
         bool _isApproved
     ) external returns(bool){
-        address _roomer = rentRequests[_rentRequestId].roomer;
+        address _roomer = rentRequests[_rentRequestId].sender;
         require(_roomer != address(0),"Request:Wrong conRequest message ID!");
 
         conRequests[_rentRequestId].approved = _isApproved;

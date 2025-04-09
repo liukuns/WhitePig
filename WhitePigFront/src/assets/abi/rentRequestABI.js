@@ -112,12 +112,12 @@ export const rentRequestABI = [
         "components": [
           {
             "internalType": "uint256",
-            "name": "sendRentRequestId",
+            "name": "rentRequestId",
             "type": "uint256"
           },
           {
             "internalType": "address",
-            "name": "roomer",
+            "name": "sender",
             "type": "address"
           },
           {

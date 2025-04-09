@@ -102,7 +102,7 @@ export default {
           propertiesData.push({
             id: property.propertyId,
             image: property.photos,
-            rent: property.monthlyRent,
+            rent: Number(property.monthlyRent) / 10 ** 18,
             type: property.propertyType,
             description: property.description,
             location: property.location,
@@ -161,19 +161,29 @@ export default {
     async submitProperty() {
       try {
         const { monthlyRent, propertyType, description, photos, location } = this.newProperty;
+
+        // 检查所有字段是否已填写
+        if (!monthlyRent || !propertyType || !description || !photos || !location) {
+          alert('请完整填写所有房源信息！');
+          return;
+        }
+
         console.log('上传的房源信息:', this.newProperty);
-        console.log(this.propertyMarketContract);
+
+        // 将租金转换为精度为 18 的值
+        const rentWithPrecision = BigInt(monthlyRent) * BigInt(10 ** 18);
 
         if (!this.propertyMarketContract || typeof this.propertyMarketContract.addPropertyMarket !== 'function') {
           throw new Error('propertyMarket 未正确传递或方法不存在');
         }
 
+        // 确保所有参数为字符串类型
         await this.propertyMarketContract.addPropertyMarket(
-          monthlyRent,
-          propertyType,
-          description,
-          photos,
-          location
+          rentWithPrecision.toString(), // 转换后的租金
+          propertyType.toString(),
+          description.toString(),
+          photos.toString(),
+          location.toString()
         );
 
         alert('房源上传成功！');
@@ -181,7 +191,7 @@ export default {
         this.resetForm();
       } catch (error) {
         console.error('上传失败:', error);
-        alert('房源上传失败，请重试！');
+        alert(`房源上传失败，请重试！错误信息: ${error.message}`);
       }
     },
     resetForm() {

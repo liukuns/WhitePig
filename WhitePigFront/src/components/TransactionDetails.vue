@@ -44,7 +44,7 @@
 
       <div v-if="hasComplained" class="complaint-section">
         <h3>投诉</h3>
-        <p>投诉已提交</p>
+        <p>{{ transaction.complaint }}</p>
       </div>
       <div v-else>
         <button class="action-button" @click="openComplaintModal">投诉</button>
@@ -112,6 +112,18 @@ export default {
       type: Object,
       required: false, // 设置为非必需，避免未传递时报错
       default: () => ({}) // 默认值为空对象
+    },
+    currentUserAddress: { // 新增当前用户地址的 prop
+      type: String,
+      required: true
+    },
+    propertyMarketContract: { // 新增 propertyMarket 合约的 prop
+      type: Object,
+      required: true
+    },
+    rentDAOContract: { // 新增 propertyMarket 合约的 prop
+      type: Object,
+      required: true
     }
   },
   data() {
@@ -127,26 +139,66 @@ export default {
       hasComplained: false // 是否已投诉
     };
   },
-  created() {
-    // 初始化 IPFS 客户端，连接到本地 IPFS 节点
-    this.ipfsClient = create({
-      url: 'http://127.0.0.1:5001/api/v0' // 本地 IPFS 节点地址
-    });
-
-    // 判断用户是否已评价或投诉
-    this.checkReviewAndComplaint(this.transaction.propertyId);
-  },
-  methods: {
-    async checkReviewAndComplaint(propertyId) {
-      // 模拟判断房产编号是否为奇数
-      if (parseInt(propertyId) % 2 !== 0) {
+  async created() {
+    try {
+      const remark = await this.propertyMarketContract.getRemark(
+        this.transaction.propertyId,
+        this.currentUserAddress
+      );
+      if (remark.isRemark) {
         this.hasReviewed = true;
-        this.hasComplained = true;
-        this.transaction.review = `房产编号 ${propertyId} 已经评价了`;
-        this.transaction.complaint = `房产编号 ${propertyId} 已经投诉了`;
+        this.transaction.review = `评分: ${remark.grade}, 描述: ${remark.wards}`;
       } else {
         this.hasReviewed = false;
-        this.hasComplained = false;
+      }
+
+      // 初始化 IPFS 客户端，连接到本地 IPFS 节点
+      this.ipfsClient = create({
+        url: 'http://127.0.0.1:5001/api/v0' // 本地 IPFS 节点地址
+      });
+
+      // 判断用户是否已评价或投诉
+      this.checkReviewAndComplaint();
+      await this.checkComplaintStatus(); // 检查纠纷状态
+    } catch (error) {
+      console.error('初始化失败:', error);
+    }
+  },
+  methods: {
+    async checkReviewAndComplaint() {
+      try {
+        const remark = await this.propertyMarketContract.getRemark(
+          this.transaction.propertyId,
+          this.currentUserAddress
+        );
+        if (remark.isRemark) {
+          this.hasReviewed = true;
+          this.transaction.review = `评分: ${remark.grade}, 描述: ${remark.wards}`;
+        } else {
+          this.hasReviewed = false;
+          this.openReviewModal(); // 如果未评价，直接打开评价弹窗
+        }
+      } catch (error) {
+        console.error('获取评价信息失败:', error);
+      }
+    },
+    async checkComplaintStatus() {
+      try {
+        const disputeCount = await this.rentDAOContract.disputeCount();
+        for (let i = 0; i < disputeCount.toNumber(); i++) {
+          const dispute = await this.rentDAOContract.disputes(i);
+          const deal = await this.rentDAOContract.deals(dispute.dealId);
+          if (deal.propertyId === this.transaction.propertyId) {
+            if (deal.isDisputed) {
+              this.hasComplained = true;
+              this.transaction.complaint = `纠纷已提交，纠纷编号: ${i}`;
+              return;
+            }
+          }
+        }
+        this.hasComplained = false; // 如果没有找到相关纠纷
+      } catch (error) {
+        console.error('获取纠纷状态失败:', error);
       }
     },
     openReviewModal() {

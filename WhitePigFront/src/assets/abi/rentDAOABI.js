@@ -120,7 +120,7 @@ export const rentDAOABI = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_propertyId",
+        "name": "_disputeId",
         "type": "uint256"
       }
     ],
@@ -175,6 +175,47 @@ export const rentDAOABI = [
           }
         ],
         "internalType": "struct IRentDeal.Dispute",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_propertyId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "_getRemark",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "grade",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "wards",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isRemark",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IRentDeal.Remark",
         "name": "",
         "type": "tuple"
       }
@@ -253,6 +294,19 @@ export const rentDAOABI = [
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "dealCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -427,6 +481,30 @@ export const rentDAOABI = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isVoteDispute",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "proposalCount",
     "outputs": [
@@ -467,6 +545,40 @@ export const rentDAOABI = [
     "name": "registerAsMember",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "dealId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "remarks",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "grade",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "wards",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isRemark",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

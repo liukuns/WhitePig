@@ -29,7 +29,7 @@
     </div>
 
     <!-- 动态加载组件 -->
-    <component :is="currentView" v-else @goBack="currentView = 'main'" />
+    <component :is="currentView" v-else @goBack="currentView = 'main'" :rentDAOContract = "rentDAOContract" />
   </div>
 </template>
 
@@ -40,6 +40,12 @@ import MemberRegistration from './dao/MemberRegistration.vue';
 
 export default {
   name: 'DaoManagement',
+  props: {
+    rentDAOContract: { // 新增合约实例作为 prop
+      type: Object,
+      required: true
+    }
+  },
   components: {
     DisputeManagement,
     ProposalManagement,

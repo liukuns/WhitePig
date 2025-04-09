@@ -150,7 +150,7 @@ export default {
             location: property.location,
             description: property.description,
             type: property.propertyType,
-            rent: property.monthlyRent,
+            rent: Number(property.monthlyRent) / 10 ** 18, // 去掉 18 位精度
             owner: property.owner
           });
         }

@@ -2,7 +2,7 @@ const { ethers } = require("hardhat");
 
 async function main() {
   // 获取部署的 usdt 合约地址
-  const usdtAddress = "0xbc28001765Fe7677Eeb51813456C452813e36E9e"; // 替换为实际的USDT合约地址
+  const usdtAddress = "0x9f65894D3c397092Ec0bA240DAD3Aeb96D9568b3"; // 替换为实际的USDT合约地址
   const recipient = "0xA189b4EDC44F7343df8232a0615629556a2daf4f"; // 替换为实际的用户地址
   const mintAmount = ethers.utils.parseUnits("100000", 18); // 100,000 个代币，假设代币有 18 位小数
 

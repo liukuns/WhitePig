@@ -5,14 +5,13 @@ This project demonstrates a basic Hardhat use case. It comes with a sample contr
 Try running some of the following tasks:
 
 ```shell
-usdt deployed to: 0xbc28001765Fe7677Eeb51813456C452813e36E9e
-userInformation deployed to: 0xD907fdb109029BE0371c25cA0FB8E18902aE0bf5
-propertyManagement deployed to: 0x732FA45AfA8AEC34aabe6a04471F7aFac3726683
-propertyRentERC20 deployed to:
-0xd5F4c7E50346395321f99F0947349ac908903390
-rentDAO deployed to: 0x7bF32d1d7365AD1eeA3239846133dad21a1C2355
-propertyMarket deployed to: 0x56Afb1298Fa8898241D91E65d23eb87d49c7C30A
-renRequest deployed to: 0x860f6e00e332FDD6ee864c968324817C83e4Ba57
+usdt deployed to: 0x9f65894D3c397092Ec0bA240DAD3Aeb96D9568b3
+userInformation deployed to: 0xb095AB6E56cC2bBFd7F96C6f3694d2c6735AC617
+propertyManagement deployed to: 0x70Ccf44a2B7cAaF68B5E9d481bbABc227463f928
+renRequest deployed to: 0xd8B6435D52e65cf39De029474DBA7A3DEf67EEfb
+propertyRentERC20 deployed to: 0xb4f757FA04e7964B8afEcf68271A3Ff6d7f52654
+rentDAO deployed to: 0xeAeF6ce0def2ad7d9309BEFFd40C3c152DdBB131
+propertyMarket deployed to: 0x4A4A58F9229ab1F9cc232c6EdE427813dEC1fbAD
 
 npx hardhat help
 npx hardhat test

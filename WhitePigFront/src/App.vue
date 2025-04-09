@@ -122,28 +122,28 @@ export default {
       this.walletAddress = accounts[0];
 
       // 初始化 userInformation 合约实例
-      const userInformationAddress = '0xD907fdb109029BE0371c25cA0FB8E18902aE0bf5'; // 替换为实际地址
+      const userInformationAddress = '0xb095AB6E56cC2bBFd7F96C6f3694d2c6735AC617'; // 替换为实际地址
       this.userInformationContract = new ethers.Contract(userInformationAddress, userInformationABI, signer);
 
       // 初始化 rentRequest 合约实例
-      const rentRequestAddress = '0x860f6e00e332FDD6ee864c968324817C83e4Ba57'; // 替换为实际地址
+      const rentRequestAddress = '0xd8B6435D52e65cf39De029474DBA7A3DEf67EEfb'; // 替换为实际地址
       this.rentRequestContract = new ethers.Contract(rentRequestAddress, rentRequestABI, signer);
 
       // 初始化 rentDAO 合约实例
-      const rentDAOAddress = '0x7bF32d1d7365AD1eeA3239846133dad21a1C2355'; // 替换为实际地址
+      const rentDAOAddress = '0xeAeF6ce0def2ad7d9309BEFFd40C3c152DdBB131'; // 替换为实际地址
       this.rentDAOContract = new ethers.Contract(rentDAOAddress, rentDAOABI, signer);
 
       // 初始化 propertyManagement 合约实例
-      const propertyManagementAddress = '0x732FA45AfA8AEC34aabe6a04471F7aFac3726683'; // 替换为实际地址
+      const propertyManagementAddress = '0x70Ccf44a2B7cAaF68B5E9d481bbABc227463f928'; // 替换为实际地址
       this.propertyManagementContract = new ethers.Contract(propertyManagementAddress, propertyManagementABI, signer);
 
       // 初始化 propertyMarket 合约实例
-      const propertyMarketAddress = '0x56Afb1298Fa8898241D91E65d23eb87d49c7C30A'; // 替换为实际地址
+      const propertyMarketAddress = '0x4A4A58F9229ab1F9cc232c6EdE427813dEC1fbAD'; // 替换为实际地址
       this.propertyMarketContract = new ethers.Contract(propertyMarketAddress, propertyMarketABI, signer);
       console.log(this.propertyMarketContract);
 
       // 初始化 USDT 合约实例
-      const usdtAddress = '0xbc28001765Fe7677Eeb51813456C452813e36E9e'; // 替换为实际 USDT 合约地址
+      const usdtAddress = '0x9f65894D3c397092Ec0bA240DAD3Aeb96D9568b3'; // 替换为实际 USDT 合约地址
       this.usdtContract = new ethers.Contract(usdtAddress, usdtABI, signer);
       console.log(this.usdtContract);
 

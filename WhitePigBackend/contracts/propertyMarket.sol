@@ -42,8 +42,6 @@ import "./rentRequest.sol";
         //request = rentRequest(_request);
     }
 
-    // 获取全部的交易订单（用户查询房东和房客的交易信息）
-
     // 上传房源
     function addPropertyMarket(
         uint256 _monthlyRent, 
@@ -152,6 +150,14 @@ import "./rentRequest.sol";
         return true;
     }
 
+    // 查看评价结果（内部）
+    function getRemark(
+        uint _propertyId,
+        address _owner
+    )external view returns(Remark memory){
+        return dao._getRemark(_propertyId,_owner);
+    }
+
     //发起投诉
     function complain(
         uint _propertyId,
@@ -171,9 +177,9 @@ import "./rentRequest.sol";
 
     //查看投诉结果
     function getDisputeResult(
-        uint _propertyId
+        uint _dealId
     ) external view returns(Dispute memory){
-        return dao._getDisputeResult(_propertyId);
+        return dao._getDisputeResult(_dealId);
     }
 
     // 房东退还押金（需要用户先转USDT给合约）
@@ -197,4 +203,6 @@ import "./rentRequest.sol";
 
         return true;
     }
+
+
  }

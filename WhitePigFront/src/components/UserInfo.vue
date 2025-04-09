@@ -148,6 +148,8 @@
         v-else
         :transaction="selectedTransactionDetails"
         @go-back="showTransactionDetails = false"
+        :currentUserAddress="walletAddress"
+        :rentDAOContract = "rentDAOContract"
       />
     </div>
   </div>
@@ -175,6 +177,10 @@ export default {
       required: true
     },
     propertyManagementContract: {
+      type: Object,
+      required: true
+    },
+    propertyMarketContract: {
       type: Object,
       required: true
     }
@@ -274,18 +280,22 @@ export default {
         console.error('获取租房请求失败:', error);
       }
 
-      // 调用 propertyManagement 合约的 propertyCount 函数
-      const propertyCount = await this.propertyManagementContract.propertyCount();
+      // 调用 rentDAOContract 合约的 dealCount 函数
+      const propertyCount = await this.rentDAOContract.dealCount();
 
       // 循环调用 rentDAO 合约的 deals 函数
       for (let i = 0; i < propertyCount.toNumber(); i++) {
         const deal = await this.rentDAOContract.deals(i);
-        if (deal.roomer.toLowerCase() === this.walletAddress.toLowerCase()) {
+        const isCompleted = await this.propertyMarketContract.checkIsCompleted(deal.propertyId); // 调用 checkIsCompleted 函数
+        console.log('交易详情:', deal); // 打印交易详情
+        console.log('是否完成:', isCompleted); // 打印是否完成的结果
+
+        if (deal.roomer.toLowerCase() === this.walletAddress.toLowerCase() || deal.landord.toLowerCase() === this.walletAddress.toLowerCase()) {
           this.rentalTransactions.push({
             propertyId: deal.propertyId,
             startDate: new Date(deal.rentTimeStart * 1000).toISOString().split('T')[0],
             endDate: new Date(deal.rentTimeEnd * 1000).toISOString().split('T')[0],
-            isCompleted: deal.isCompleted,
+            isCompleted: isCompleted, // 使用 checkIsCompleted 的结果
             isDisputed: deal.isDisputed,
             contractCID: deal.rentContract
           });
