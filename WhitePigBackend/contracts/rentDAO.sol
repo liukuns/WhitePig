@@ -277,18 +277,15 @@ contract rentDAO is IUserInformation,IRentDeal{
         address otherParty = (tx.origin == deal.roomer)
             ? deal.landord 
             : deal.roomer;                                   // 获取对方地址
-        // address otherParty = tx.origin;
 
         remarks[dealId][tx.origin].isRemark = true;           // 标记当前用户已评价
         remarks[dealId][otherParty].wards = _wards;           // 对方在这笔交易中获得的评价
         remarks[dealId][otherParty].grade = _grade;
-
+ 
         uint currentReputation = user.getUserReputation(otherParty);//当前信誉积分
         uint _start = deals[dealId].rentTimeStart;
         uint _end = deals[dealId].rentTimeEnd;
 
-        // uint _start = block.timestamp;
-        // uint _end = block.timestamp + 9 * 1 minutes;
 
         if(_grade >= 90){
             user.addUserReputation(otherParty,currentReputation,2*(_end - _start)/ 1 minutes);
@@ -323,5 +320,12 @@ contract rentDAO is IUserInformation,IRentDeal{
         });
 
         deals[dealId].isDisputed = true;
+    }
+
+    // 查询交易信息
+    function getDealPropertyId(
+        uint _dealId
+    )external view returns(uint){
+        return deals[_dealId].propertyId;
     }
 }

@@ -141,6 +141,7 @@ contract rentRequest is IrentRequest{
             content: _content,
             approved: false
         });
+        
         sendRentRequests[tx.origin].push(rentRequestCount);
         receivedRentRequests[owner].push(rentRequestCount);
 
@@ -155,7 +156,7 @@ contract rentRequest is IrentRequest{
         address _roomer = rentRequests[_rentRequestId].sender;
         require(_roomer != address(0),"Request:Wrong conRequest message ID!");
 
-        conRequests[_rentRequestId].approved = _isApproved;
+        rentRequests[_rentRequestId].approved = _isApproved;
 
         return _isApproved;
     }

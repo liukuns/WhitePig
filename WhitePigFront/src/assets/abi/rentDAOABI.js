@@ -449,6 +449,25 @@ export const rentDAOABI = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_dealId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getDealPropertyId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "isMember",
     "outputs": [

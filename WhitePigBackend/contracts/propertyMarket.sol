@@ -137,15 +137,17 @@ import "./rentRequest.sol";
 
     // 用户发起评价
     function remark(
-        uint _propertyId,
+        uint _dealId,
         uint _grade,
         string memory _wards
     ) external returns(bool){
+        uint _propertyId = dao.getDealPropertyId(_dealId);
+
         require(_grade * _propertyId != 0,"Market: invaild input number!");
 
         pm.updateAvailability(_propertyId,true);
         pm.updateWithdrawal(_propertyId,false);
-        dao.rateDeal(_propertyId,_grade,_wards);
+        dao.rateDeal(_dealId,_grade,_wards);
 
         return true;
     }
@@ -160,13 +162,14 @@ import "./rentRequest.sol";
 
     //发起投诉
     function complain(
-        uint _propertyId,
+        uint _dealId,
         string memory _description,
         string memory _proof
     ) external returns(bool){
+        uint _propertyId = dao.getDealPropertyId(_dealId);
 
         dao.submitDispute(
-            _propertyId,
+            _dealId,
             _description,
             _proof,
             pm.getPropertyOwner(_propertyId)

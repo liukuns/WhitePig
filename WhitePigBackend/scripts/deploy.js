@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 async function main() {
   // 部署 usdt 合约
   const USDT = await ethers.getContractFactory("usdt");
-  const usdt = await USDT.deploy("Tether USD", "USDT");
+  const usdt = await USDT.deploy("Degital RMB", "RMB");
   // 传入参数：名称、符号
   await usdt.deployed();
   console.log("usdt deployed to:", usdt.address);

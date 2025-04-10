@@ -1,7 +1,8 @@
 <template>
   <div class="proposal-management">
-    <button class="back-button" @click="$emit('goBack')">返回</button>
-    <h2>内部提案管理</h2>
+    <div class="back-button-container">
+      <button class="back-button" @click="$emit('goBack')">返回</button>
+    </div>
     <p>发起提案、提案投票以及查看提案列表。</p>
 
     <div class="actions">
@@ -37,33 +38,41 @@ export default {
   position: relative;
 }
 
-.back-button {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 5px 10px;
-  background-color: #000;
-  color: #fff;
+.back-button,
+.actions button {
+  padding: 10px 20px; /* 统一按钮样式 */
+  background-color: #f0f0f0; /* 浅灰色背景 */
+  color: #000; /* 黑色字体 */
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 柔和阴影 */
+  transition: all 0.3s ease;
 }
 
-.back-button:hover {
-  opacity: 0.9;
+.back-button:hover,
+.actions button:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 鼠标悬停时更深的阴影 */
+  transform: translateY(-1px); /* 轻微上移 */
+}
+
+.back-button {
+  display: inline-block; /* 确保按钮正常布局 */
+  position: relative; /* 确保布局正常 */
+  z-index: 1; /* 提升层级，避免与其他元素重叠 */
 }
 
 .actions button {
   margin: 5px;
-  padding: 10px 20px;
-  background-color: #000;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .actions button:hover {
   opacity: 0.9;
+}
+
+.back-button-container {
+  margin-bottom: 20px; /* 添加与内容的间距 */
+  text-align: left; /* 按钮靠左对齐 */
+  display: block; /* 确保按钮单独占一行 */
 }
 </style>

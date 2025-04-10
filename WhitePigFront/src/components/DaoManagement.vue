@@ -111,15 +111,19 @@ export default {
 }
 
 .card button {
-  padding: 10px 20px;
-  background-color: #000; /* 修改为黑色背景 */
-  color: #fff; /* 修改为白色文字 */
-  border: none;
-  border-radius: 4px;
+  padding: 12px 24px;
+  color: #333; /* 深灰色文字 */
+  border-radius: 10px; /* 圆角按钮 */
+  border: none ;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
+  transition: all 0.3s ease; /* 添加过渡效果 */
 }
 
 .card button:hover {
-  opacity: 0.9; /* 鼠标悬停时稍微变暗 */
+  transform: translateY(-2px); /* 轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
 }
 </style>

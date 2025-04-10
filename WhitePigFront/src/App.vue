@@ -13,11 +13,21 @@
     <!-- 主体内容 -->
     <div class="app-body">
       <div id="guide">
-        <button class="guide-button" @click="switchModule('rentalMarket')">租房市场</button>
-        <button class="guide-button" @click="switchModule('userInfo')">用户信息</button>
-        <button class="guide-button" @click="switchModule('daoManagement')">DAO管理</button>
-        <button class="guide-button" @click="switchModule('userProperties')">用户房产</button>
-        <button class="guide-button" @click="switchModule('learnMore')">了解更多</button>
+        <button class="guide-button" @click="switchModule('rentalMarket')">
+          <i class="icon icon-rental-market"></i> 租房市场
+        </button>
+        <button class="guide-button" @click="switchModule('userInfo')">
+          <i class="icon icon-user-info"></i> 我的信息
+        </button>
+        <button class="guide-button" @click="switchModule('userProperties')">
+          <i class="icon icon-user-properties"></i>我的交易
+        </button>
+        <button class="guide-button" @click="switchModule('daoManagement')">
+          <i class="icon icon-dao-management"></i> DAO
+        </button>
+        <button class="guide-button" @click="switchModule('learnMore')">
+          <i class="icon icon-learn-more"></i> 了解更多
+        </button>
       </div>
 
       <div class="module-container">
@@ -67,7 +77,8 @@ export default {
       rentDAOContract: null,
       propertyManagementContract: null,
       propertyMarketContract: null,
-      usdtContract: null // 添加 USDT 合约实例
+      usdtContract: null, // 添加 USDT 合约实例
+      currentUserAddress: '' // 当前用户地址
     };
   },
   methods: {
@@ -105,6 +116,11 @@ export default {
         // 更新钱包地址
         this.walletAddress = accounts[0];
       }
+    },
+    async getCurrentUserAddress() {
+      // 获取当前用户地址的逻辑
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      return accounts[0];
     }
   },
   async created() {
@@ -122,30 +138,34 @@ export default {
       this.walletAddress = accounts[0];
 
       // 初始化 userInformation 合约实例
-      const userInformationAddress = '0xb095AB6E56cC2bBFd7F96C6f3694d2c6735AC617'; // 替换为实际地址
+      const userInformationAddress = '0x16F93e3D98B4424f38fB8fCCf78d603f7E49dDCc'; // 替换为实际地址
       this.userInformationContract = new ethers.Contract(userInformationAddress, userInformationABI, signer);
 
       // 初始化 rentRequest 合约实例
-      const rentRequestAddress = '0xd8B6435D52e65cf39De029474DBA7A3DEf67EEfb'; // 替换为实际地址
+      const rentRequestAddress = '0x1f8100B9d7a1BC8AA5AB3C499AfDd41781455aBe'; // 替换为实际地址
       this.rentRequestContract = new ethers.Contract(rentRequestAddress, rentRequestABI, signer);
 
       // 初始化 rentDAO 合约实例
-      const rentDAOAddress = '0xeAeF6ce0def2ad7d9309BEFFd40C3c152DdBB131'; // 替换为实际地址
+      const rentDAOAddress = '0x56A3bD54FfFc4A9Adbf9c65784b5B2CC6CAf565E'; // 替换为实际地址
       this.rentDAOContract = new ethers.Contract(rentDAOAddress, rentDAOABI, signer);
 
       // 初始化 propertyManagement 合约实例
-      const propertyManagementAddress = '0x70Ccf44a2B7cAaF68B5E9d481bbABc227463f928'; // 替换为实际地址
+      const propertyManagementAddress = '0xD25672338b19552c706fb94Df230503bA74E8F50'; // 替换为实际地址
       this.propertyManagementContract = new ethers.Contract(propertyManagementAddress, propertyManagementABI, signer);
 
       // 初始化 propertyMarket 合约实例
-      const propertyMarketAddress = '0x4A4A58F9229ab1F9cc232c6EdE427813dEC1fbAD'; // 替换为实际地址
+      const propertyMarketAddress = '0x5Ff0D772CB42e7aC61724bc6461B7e6440e40F56'; // 替换为实际地址
       this.propertyMarketContract = new ethers.Contract(propertyMarketAddress, propertyMarketABI, signer);
       console.log(this.propertyMarketContract);
 
       // 初始化 USDT 合约实例
-      const usdtAddress = '0x9f65894D3c397092Ec0bA240DAD3Aeb96D9568b3'; // 替换为实际 USDT 合约地址
+      const usdtAddress = '0x6b7A9D8719794c4117fea85dA10597Fa5ba99F01'; // 替换为实际 USDT 合约地址
       this.usdtContract = new ethers.Contract(usdtAddress, usdtABI, signer);
       console.log(this.usdtContract);
+
+      // 初始化当前用户地址
+      this.currentUserAddress = await this.getCurrentUserAddress();
+      console.log('当前用户地址:', this.currentUserAddress);
 
       console.log('合约实例已初始化');
     } catch (error) {
@@ -219,41 +239,58 @@ export default {
 
 /* head */
 .app-header {
-  width: 100%; /* 修改为与app-body一致 */
+  width: 100%;
   height: 5%;
-  background-color: #ffffff;
-  border: #181818 solid 4px;
+  border: none; /* 移除边框 */
   padding: 20px;
   border-radius: 10px;
-  display: flex; /* 修改为flex布局 */
-  align-items: center; /* 垂直居中 */
-  justify-content: space-between; /* 两端对齐 */
+  border: #000000 solid 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: transform 0.2s, box-shadow 0.2s; /* 添加动画效果 */
 }
+
 .logo-container {
-  background-color: #ffffff;
+  background-color: transparent; /* 透明背景 */
   width: 70%;
   height: 100px;
   margin-left: 5%;
   display: flex;
   align-items: center;
 }
+
 .logo-text {
   font-size: 50px;
-  color: #181818;
+  color: #423f3f; /* 修改为白色字体 */
   margin-left: 10px;
   font-family: 'Cursive', 'Arial', sans-serif; /* 添加飘逸字体 */
   font-style: italic; /* 修改为斜体 */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 添加文字阴影 */
 }
+
 .connect-wallet-btn {
   width: 10%;
   height: 100%;
   margin-right: 5%;
-  background-color: #000000;
-  color: #ffffff;
+  color: #000000;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 10px; /* 圆角 */
   font-family: 'Cursive', 'Arial', sans-serif; /* 添加飘逸字体 */
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: transform 0.2s, box-shadow 0.2s; /* 添加动画效果 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connect-wallet-btn:hover {
+  transform: translateY(-3px); /* 悬停时上移 */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 6px 10px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
 }
 
 /* body */
@@ -282,15 +319,55 @@ export default {
 .guide-button {
   width: 90%;
   height: 50px;
-  background-color: #000000;
-  color: #ffffff;
+  color: #000000;
   border: none;
-  margin:10px;
-  border-radius: 5px;
+  margin: 10px;
+  margin-bottom: 20px;
+  border-radius: 10px; /* 圆角 */
   font-size: 18px;
   cursor: pointer;
   font-family: 'Cursive', 'Arial', sans-serif; /* 添加飘逸字体 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px; /* 图标与文字的间距 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: transform 0.2s, box-shadow 0.2s; /* 添加动画效果 */
+  letter-spacing: 17px; /* 增加文字间距 */
 }
+
+.guide-button:hover {
+  transform: translateY(-3px); /* 悬停时上移 */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* 悬停时阴影增强 */
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  background-size: cover;
+}
+
+.icon-rental-market {
+  background-image: url('/assets/icons/rental-market.png'); /* 替换为实际图标路径 */
+}
+
+.icon-user-info {
+  background-image: url('/assets/icons/user-info.png'); /* 替换为实际图标路径 */
+}
+
+.icon-user-properties {
+  background-image: url('/assets/icons/user-properties.png'); /* 替换为实际图标路径 */
+}
+
+.icon-dao-management {
+  background-image: url('/assets/icons/dao-management.png'); /* 替换为实际图标路径 */
+}
+
+.icon-learn-more {
+  background-image: url('/assets/icons/learn-more.png'); /* 替换为实际图标路径 */
+}
+
 .module-container {
   border: #181818 solid 4px;
   width: 80%;

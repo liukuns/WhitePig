@@ -1,7 +1,8 @@
 <template>
   <div class="member-registration">
-    <button class="back-button" @click="$emit('goBack')">返回</button>
-    <h2>DAO成员注册</h2>
+    <div class="back-button-container">
+      <button class="back-button" @click="$emit('goBack')">返回</button>
+    </div>
     <p>注册新成员并管理成员信息。</p>
 
     <div class="actions">
@@ -47,33 +48,43 @@ export default {
   position: relative;
 }
 
+.back-button-container {
+  margin-bottom: 30px; /* 增加与下面内容的间距 */
+  text-align: left; /* 按钮靠左对齐 */
+  display: block; /* 确保按钮单独占一行 */
+}
+
 .back-button {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 5px 10px;
-  background-color: #000;
-  color: #fff;
+  padding: 10px 20px; /* 墛大按钮尺寸 */
+  display: inline-block; /* 确保按钮正常布局 */
+  background-color: #f0f0f0; /* 浅灰色背景 */
+  color: #000; /* 黑色字体 */
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 柔和阴影 */
+  transition: all 0.3s ease;
 }
 
 .back-button:hover {
-  opacity: 0.9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 鼠标悬停时更深的阴影 */
+  transform: translateY(-1px); /* 轻微上移 */
 }
 
 .actions button {
   margin: 5px;
   padding: 10px 20px;
-  background-color: #000;
-  color: #fff;
+  background-color: #f0f0f0; /* 浅灰色背景 */
+  color: #000; /* 黑色字体 */
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 柔和阴影 */
+  transition: all 0.3s ease;
 }
 
 .actions button:hover {
-  opacity: 0.9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 鼠标悬停时更深的阴影 */
+  transform: translateY(-1px); /* 轻微上移 */
 }
 </style>

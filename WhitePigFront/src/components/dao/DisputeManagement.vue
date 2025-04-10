@@ -1,7 +1,9 @@
 <template>
   <div class="dispute-management">
-    <button class="back-button" @click="$emit('goBack')">返回</button>
-    <h2>纠纷列表</h2>
+    <div class="back-button-container">
+      <button class="back-button" @click="$emit('goBack')">返回</button>
+    </div>
+
     <p>查看所有纠纷的详细信息。</p>
 
     <table class="dispute-table">
@@ -36,7 +38,7 @@
             <span v-if="dispute.executed">已执行</span>
             <button v-else class="btn-execute" @click="executeDispute(dispute.id)">执行</button>
           </td>
-          <td>{{ dispute.defendant }}</td>
+          <td>{{ shortenAddress(dispute.defendant) }}</td>
           <td>
             <div v-if="!dispute.executed && new Date(dispute.voteDeadline) > new Date()">
               <button class="btn-vote" @click="openVoteModal(dispute.id, '支持')">支持</button>
@@ -231,6 +233,10 @@ export default {
     closeProofModal() {
       this.proofModalVisible = false;
       this.currentProofUrl = '';
+    },
+    shortenAddress(address) {
+      if (!address) return '';
+      return `${address.slice(0, 6)}...${address.slice(-4)}`;
     }
   }
 };
@@ -239,99 +245,119 @@ export default {
 <style scoped>
 .dispute-management {
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+  border-radius: 12px; /* 更大的圆角 */
   position: relative;
 }
 
+.back-button-container {
+  margin-bottom: 20px; /* 添加与表格的间距 */
+  text-align: left; /* 按钮靠左对齐 */
+}
+
 .back-button {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 5px 10px;
+  padding: 10px 20px;
   background-color: #000;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
 .back-button:hover {
-  opacity: 0.9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .dispute-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  table-layout: fixed;
+  border-radius: 12px; /* 表格圆角 */
+  overflow: hidden; /* 防止圆角被覆盖 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 表格阴影 */
 }
 
 .dispute-table th,
 .dispute-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 14px 18px; /* 增加内边距 */
   text-align: center;
+  font-size: 14px;
+  color: #555; /* 更柔和的字体颜色 */
+  background-color: #fdfdfd; /* 更浅的背景色 */
+  border-bottom: 1px solid #eee; /* 更浅的分隔线 */
+  word-wrap: break-word;
 }
 
 .dispute-table th {
-  background-color: #f4f4f4;
-  font-weight: bold;
+  font-weight: 600; /* 半粗字体 */
+  background-color: #f8f9fa; /* 更浅的表头背景 */
+  color: #333; /* 深灰色字体 */
 }
 
-.dispute-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.dispute-table tr:hover {
-  background-color: #f1f1f1;
+.dispute-table tr:hover td {
+  background-color: #f7f7f7; /* 鼠标悬停时更浅的背景 */
 }
 
 .pagination {
-  margin-top: 10px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 12px; /* 更大的间距 */
 }
 
 .btn-page {
-  padding: 5px 10px;
-  background-color: #000;
+  padding: 8px 16px; /* 更紧凑的按钮 */
+  background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px; /* 更小的圆角 */
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .btn-page:disabled {
-  background-color: #ccc;
+  background-color: #e0e0e0; /* 更浅的禁用背景 */
+  color: #999; /* 更浅的禁用字体颜色 */
   cursor: not-allowed;
 }
 
 .btn-detail {
-  padding: 5px 10px;
-  background-color: #000000;
-  color: white;
+  padding: 8px 16px; /* 更紧凑的按钮 */
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px; /* 更小的圆角 */
+  font-size: 14px;
+  font-weight: 500; /* 中等粗细 */
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .btn-detail:hover {
-  opacity: 0.9;
+  transform: translateY(-1px); /* 轻微上移 */
 }
 
 .btn-execute {
-  padding: 5px 10px;
-  background-color: #388a4b;
-  color: white;
+  padding: 8px 16px; /* 更紧凑的按钮 */
+  background-color: #f0f0f0; /* 浅灰色背景 */
+  color: #000; /* 黑色字体 */
   border: none;
-  border-radius: 4px;
+  border-radius: 6px; /* 更小的圆角 */
+  font-size: 14px;
+  font-weight: 500; /* 中等粗细 */
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 柔和阴影 */
 }
 
 .btn-execute:hover {
-  opacity: 0.9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 鼠标悬停时更深的阴影 */
+  transform: translateY(-1px); /* 轻微上移 */
 }
 
 .modal-overlay {
@@ -348,46 +374,56 @@ export default {
 }
 
 .modal {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
+  background-color: #ffffff;
+  padding: 24px; /* 更大的内边距 */
+  border-radius: 12px; /* 更大的圆角 */
+  width: 420px; /* 更宽的弹窗 */
   text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* 更深的阴影 */
 }
 
 .modal h3 {
-  margin-bottom: 10px;
+  margin-bottom: 16px; /* 更大的标题间距 */
+  font-size: 18px; /* 更大的字体 */
+  font-weight: 600; /* 半粗字体 */
+  color: #333; /* 深灰色字体 */
 }
 
 .modal p {
-  margin-bottom: 20px;
+  margin-bottom: 24px; /* 更大的段落间距 */
+  font-size: 14px;
+  color: #555; /* 更柔和的字体颜色 */
 }
 
 .btn-close {
-  padding: 5px 10px;
-  background-color: #000;
-  color: white;
+  padding: 8px 16px; /* 更紧凑的按钮 */
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px; /* 更小的圆角 */
+  font-size: 14px;
+  font-weight: 500; /* 中等粗细 */
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .btn-close:hover {
-  opacity: 0.9;
+  transform: translateY(-1px); /* 轻微上移 */
 }
 
 .btn-vote {
-  padding: 5px 10px;
-  background-color: #007bff;
-  color: white;
+  padding: 8px 16px; /* 更紧凑的按钮 */
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px; /* 更小的圆角 */
+  font-size: 14px;
+  font-weight: 500; /* 中等粗细 */
   cursor: pointer;
+  transition: all 0.3s ease;
   margin-right: 5px;
 }
 
 .btn-vote:hover {
-  opacity: 0.9;
+  transform: translateY(-1px); /* 轻微上移 */
 }
 
 .modal-actions {
@@ -397,26 +433,37 @@ export default {
 }
 
 .btn-confirm {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 20px;
+  padding: 8px 16px; /* 更紧凑的按钮 */
+  background-color: #007bff; /* 统一按钮颜色 */
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px; /* 更小的圆角 */
+  font-size: 14px;
+  font-weight: 500; /* 中等粗细 */
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-confirm:hover {
+  background-color: #0056b3; /* 深蓝色悬停效果 */
+  transform: translateY(-1px); /* 轻微上移 */
 }
 
 .btn-cancel {
-  background-color: #dc3545;
-  color: white;
-  padding: 10px 20px;
+  padding: 8px 16px; /* 更紧凑的按钮 */
+  background-color: #007bff; /* 统一按钮颜色 */
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px; /* 更小的圆角 */
+  font-size: 14px;
+  font-weight: 500; /* 中等粗细 */
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.btn-confirm:hover,
 .btn-cancel:hover {
-  opacity: 0.9;
+  background-color: #0056b3; /* 深蓝色悬停效果 */
+  transform: translateY(-1px); /* 轻微上移 */
 }
 
 .proof-image {
@@ -425,5 +472,74 @@ export default {
   margin-bottom: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
+}
+
+.back-button,
+.btn-page,
+.btn-detail,
+.btn-execute,
+.btn-vote,
+.btn-close,
+.btn-confirm,
+.btn-cancel {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  color: #333; /* 深灰色文字 */
+  border: none;
+  border-radius: 10px; /* 圆角按钮 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease; /* 添加过渡效果 */
+}
+
+.back-button:hover,
+.btn-page:hover:not(:disabled),
+.btn-detail:hover,
+.btn-execute:hover,
+.btn-vote:hover,
+.btn-close:hover,
+.btn-confirm:hover,
+.btn-cancel:hover {
+  transform: translateY(-2px); /* 轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+}
+
+.btn-page:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  border-color: #ccc;
+}
+
+.btn-execute {
+  background-color: #f0f0f0; /* 绿色背景 */
+  color: #000000;
+  border: none;
+}
+
+.btn-execute:hover {
+  background-color: #fefefe; /* 深绿色悬停效果 */
+}
+
+.btn-confirm {
+  background-color: #007bff; /* 蓝色背景 */
+  color: #ffffff;
+  border: none;
+}
+
+.btn-confirm:hover {
+  background-color: #0056b3; /* 深蓝色悬停效果 */
+}
+
+.btn-cancel {
+  background-color: #dc3545; /* 红色背景 */
+  color: #ffffff;
+  border: none;
+}
+
+.btn-cancel:hover {
+  background-color: #c82333; /* 深红色悬停效果 */
 }
 </style>

@@ -106,7 +106,7 @@ export const propertyMarketABI = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_propertyId",
+        "name": "_dealId",
         "type": "uint256"
       },
       {
@@ -315,7 +315,7 @@ export const propertyMarketABI = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_propertyId",
+        "name": "_dealId",
         "type": "uint256"
       },
       {

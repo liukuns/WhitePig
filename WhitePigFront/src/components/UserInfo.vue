@@ -2,24 +2,28 @@
   <div class="user-info">
     <!-- 用户身份认证 -->
     <div v-if="!isVerified" class="auth-section">
-      <h3>身份认证</h3>
-      <label for="id-number">身份证号:</label>
-      <input id="id-number" v-model="idNumber" placeholder="请输入身份证号" />
+      <div class="auth-card">
+        <h3>身份认证</h3>
+        <div class="form-group">
+          <label for="id-number">身份证号:</label>
+          <input id="id-number" v-model="idNumber" placeholder="请输入身份证号" />
+        </div>
+        <div class="form-group">
+          <label for="phone-number">手机号:</label>
+          <input id="phone-number" v-model="phoneNumber" placeholder="请输入手机号" />
+        </div>
+        <button class="primary-button gradient-button" @click="sendVerificationCode">获取验证码</button>
 
-      <label for="phone-number">手机号:</label>
-      <input id="phone-number" v-model="phoneNumber" placeholder="请输入手机号" />
-
-      <button @click="sendVerificationCode">获取验证码</button>
-
-      <!-- 确保验证码输入框在发送验证码后显示 -->
-      <div v-if="verificationSent">
-        <label for="verification-code">验证码:</label>
-        <input
-          id="verification-code"
-          v-model="verificationCode"
-          placeholder="请输入验证码"
-        />
-        <button @click="verifyIdentity">验证身份</button>
+        <!-- 验证码输入框 -->
+        <div v-if="verificationSent" class="form-group">
+          <label for="verification-code">验证码:</label>
+          <input
+            id="verification-code"
+            v-model="verificationCode"
+            placeholder="请输入验证码"
+          />
+          <button class="primary-button gradient-button" @click="verifyIdentity">验证身份</button>
+        </div>
       </div>
     </div>
 
@@ -27,11 +31,31 @@
     <div v-else>
       <h2>我的信息</h2>
       <div class="user-details">
-        <p><strong>数字身份证:</strong> {{ digitalId }}</p>
-        <p><strong>钱包地址:</strong> {{ walletAddress }}</p>
-        <p><strong>信誉积分:</strong> {{ reputationScore }}</p>
-        <p><strong>手机号:</strong> {{ phoneNumber }}</p>
-        <p><strong>身份认证绑定:</strong> {{ isVerified ? '已绑定' : '未绑定' }}</p>
+        <div class="info-card">
+          <i class="icon fas fa-id-card"></i>
+          <p class="label"><strong>数字身份证:</strong></p>
+          <p class="value">{{ digitalId }}</p>
+        </div>
+        <div class="info-card">
+          <i class="icon fas fa-wallet"></i>
+          <p class="label"><strong>钱包地址:</strong></p>
+          <p class="value">{{ walletAddress }}</p>
+        </div>
+        <div class="info-card">
+          <i class="icon fas fa-star"></i>
+          <p class="label"><strong>信誉积分:</strong></p>
+          <p class="value">{{ reputationScore }}</p>
+        </div>
+        <div class="info-card">
+          <i class="icon fas fa-phone"></i>
+          <p class="label"><strong>手机号:</strong></p>
+          <p class="value">{{ phoneNumber }}</p>
+        </div>
+        <div class="info-card">
+          <i class="icon fas fa-check-circle"></i>
+          <p class="label"><strong>身份认证绑定:</strong></p>
+          <p class="value">{{ isVerified ? '已绑定' : '未绑定' }}</p>
+        </div>
       </div>
 
       <!-- 用户请求模块 -->
@@ -131,7 +155,12 @@
               <td>{{ transaction.isDisputed ? '是' : '否' }}</td>
               <td>{{ transaction.contractCID }}</td>
               <td>
-                <button @click.stop="$emit('view-transaction', transaction)">查看详情</button>
+                <button 
+                  class="view-details-button" 
+                  @click.stop="$emit('view-transaction', transaction)"
+                >
+                  查看详情
+                </button>
               </td>
             </tr>
           </tbody>
@@ -150,6 +179,7 @@
         @go-back="showTransactionDetails = false"
         :currentUserAddress="walletAddress"
         :rentDAOContract = "rentDAOContract"
+        :propertyMarketContract = "propertyMarketContract"
       />
     </div>
   </div>
@@ -190,7 +220,7 @@ export default {
       idNumber: '',
       phoneNumber: '',
       verificationCode: '',
-      verificationSent: true,
+      verificationSent: false,
       isVerified: false,
       digitalId: '',
       reputationScore: 0,
@@ -282,6 +312,7 @@ export default {
 
       // 调用 rentDAOContract 合约的 dealCount 函数
       const propertyCount = await this.rentDAOContract.dealCount();
+      console.log('交易数量:', propertyCount.toNumber()); // 打印交易数量
 
       // 循环调用 rentDAO 合约的 deals 函数
       for (let i = 0; i < propertyCount.toNumber(); i++) {
@@ -292,6 +323,7 @@ export default {
 
         if (deal.roomer.toLowerCase() === this.walletAddress.toLowerCase() || deal.landord.toLowerCase() === this.walletAddress.toLowerCase()) {
           this.rentalTransactions.push({
+            dealId: i,
             propertyId: deal.propertyId,
             startDate: new Date(deal.rentTimeStart * 1000).toISOString().split('T')[0],
             endDate: new Date(deal.rentTimeEnd * 1000).toISOString().split('T')[0],
@@ -437,39 +469,173 @@ export default {
 }
 
 .auth-section {
-  width: 20%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  height: 50vh; /* 垂直居中 */
-  margin: 0 auto; /* 水平居中 */
+  align-items: center;
+  height: 100vh; /* 全屏高度 */
 }
 
-.auth-section label,
-.auth-section input {
+.auth-card {
+  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* 更柔和的阴影 */
+  width: 450px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2); /* 悬停时的阴影效果 */
+}
+
+.auth-card h3 {
+  margin-bottom: 20px;
+  font-size: 26px;
+  color: #333;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.auth-card button {
+  margin-top: 25px; /* 增加按钮与上方元素的间距 */
+}
+
+.form-group {
+  margin-bottom: 25px; /* 增加底部间距 */
+  text-align: left;
+  position: relative; /* 确保子元素可以定位 */
+}
+
+.form-group label {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #555;
 }
 
-.auth-section button {
-  margin-top: 10px;
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #4b4e55;
+  box-shadow: 0 0 8px rgba(75, 78, 85, 0.3);
+  outline: none;
+}
+
+#verification-code {
+  margin-top: 20px; /* 增加顶部间距 */
+}
+
+.primary-button {
+  width: 100%;
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+  color: black; /* 设置字体颜色为黑色 */
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
+  transition: transform 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 添加阴影 */
 }
 
-.auth-section button:hover {
-  background-color: #0056b3;
+.primary-button:hover {
+  transform: scale(1.05); /* 添加缩放效果 */
+}
+
+.primary-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.gradient-button {
+  color: black; /* 设置字体颜色为黑色 */
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 12px 24px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+}
+
+.gradient-button:hover {
+  transform: scale(1.05); /* 添加缩放效果 */
+}
+
+.gradient-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+button.view-details-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none; /* 移除边框 */
+  border-radius: 6px; /* 圆角 */
+  background-color: #ffffff; /* 白色背景 */
+  color: #000; /* 黑色字体 */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: all 0.3s ease;
+}
+
+button.view-details-button:hover {
+  background-color: #f0f0f0; /* 悬停时浅灰色背景 */
+  transform: translateY(-2px); /* 悬停时轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
 }
 
 .user-details {
-  margin-bottom: 20px;
-  max-height: none; /* 移除高度限制 */
-  overflow-y: visible; /* 移除滚动条 */
+  width: 97%;
+  display: flex;
+  flex-direction: column; /* 改为纵向排列 */
+  gap: 15px; /* 卡片之间的间距 */
+}
+
+.info-card {
+  width: 100%; /* 占满整行 */
+  word-wrap: break-word; /* 自动换行，防止内容溢出 */
+  background-color: #e0e0e07c;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 图标、标签和值两端对齐 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.info-card .icon {
+  font-size: 24px;
+  color: #4b4e55;
+  margin-right: 15px;
+}
+
+.info-card .label {
+  flex-grow: 1; /* 占据剩余空间 */
+  text-align: left; /* 标签左对齐 */
+}
+
+.info-card .value {
+  text-align: right; /* 值右对齐 */
+  font-weight: bold; /* 加粗值 */
 }
 
 .requests-container,
@@ -498,68 +664,144 @@ export default {
 
 table {
   width: 100%;
-  border-collapse: collapse; /* 确保表格边框合并 */
-  margin-top: 10px;
-  table-layout: fixed; /* 固定表格布局 */
-}
-
-th,
-td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center; /* 居中对齐表项和表格元素 */
-  word-wrap: break-word; /* 自动换行，防止内容溢出 */
+  border-collapse: collapse; /* 合并边框 */
+  margin-top: 15px;
+  background-color: #ffffff; /* 白色背景 */
+  border-radius: 8px; /* 圆角 */
+  overflow: hidden; /* 隐藏溢出 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
 }
 
 th {
-  background-color: #f1f1f1;
+  background-color: #f9f9f9; /* 浅灰色背景 */
   font-weight: bold;
+  color: #000; /* 黑色字体 */
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd; /* 添加底部边框 */
 }
 
-th:nth-child(1),
-td:nth-child(1) {
-  width: 20%; /* 房源编号列宽度 */
+td {
+  padding: 12px;
+  text-align: center;
+  color: #333; /* 深灰色字体 */
+  border-bottom: 1px solid #f0f0f0; /* 添加底部边框 */
 }
 
-th:nth-child(2),
-td:nth-child(2) {
-  width: 30%; /* 接收方地址列宽度 */
-}
-
-th:nth-child(3),
-td:nth-child(3) {
-  width: 30%; /* 发送内容列宽度 */
-}
-
-th:nth-child(4),
-td:nth-child(4) {
-  width: 20%; /* 是否同意列宽度 */
+tr:last-child td {
+  border-bottom: none; /* 移除最后一行的底部边框 */
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 15px;
+  gap: 10px; /* 增加按钮间距 */
 }
 
 .pagination button {
-  margin: 0 5px;
-  padding: 5px 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none; /* 移除边框 */
+  border-radius: 6px; /* 圆角 */
+  background-color: #ffffff; /* 白色背景 */
+  color: #000; /* 黑色字体 */
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: all 0.3s ease;
+}
+
+.pagination button:hover {
+  background-color: #f0f0f0; /* 悬停时浅灰色背景 */
+  transform: translateY(-2px); /* 悬停时轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
 }
 
 .pagination button:disabled {
-  background-color: #ccc;
+  background-color: #e0e0e0; /* 禁用按钮灰色背景 */
+  color: #999; /* 禁用按钮灰色字体 */
   cursor: not-allowed;
 }
 
-.pagination span {
-  margin: 0 10px;
+.transactions-container table {
+  width: 100%;
+  border-collapse: collapse; /* 合并边框 */
+  margin-top: 15px;
+  background-color: #ffffff; /* 白色背景 */
+  border-radius: 8px; /* 圆角 */
+  overflow: hidden; /* 隐藏溢出 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+}
+
+.transactions-container th {
+  background-color: #f9f9f9; /* 浅灰色背景 */
+  font-weight: bold;
+  color: #000; /* 黑色字体 */
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd; /* 添加底部边框 */
+}
+
+.transactions-container td {
+  padding: 12px;
+  text-align: center;
+  color: #333; /* 深灰色字体 */
+  border-bottom: 1px solid #f0f0f0; /* 添加底部边框 */
+}
+
+.transactions-container tr:last-child td {
+  border-bottom: none; /* 移除最后一行的底部边框 */
+}
+
+.transactions-container button.view-details-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none; /* 移除边框 */
+  border-radius: 6px; /* 圆角 */
+  background-color: #ffffff; /* 白色背景 */
+  color: #000; /* 黑色字体 */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: all 0.3s ease;
+}
+
+.transactions-container button.view-details-button:hover {
+  background-color: #f0f0f0; /* 悬停时浅灰色背景 */
+  transform: translateY(-2px); /* 悬停时轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
+}
+
+.transactions-container .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  gap: 10px; /* 增加按钮间距 */
+}
+
+.transactions-container .pagination button {
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none; /* 移除边框 */
+  border-radius: 6px; /* 圆角 */
+  background-color: #ffffff; /* 白色背景 */
+  color: #000; /* 黑色字体 */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: all 0.3s ease;
+}
+
+.transactions-container .pagination button:hover {
+  background-color: #f0f0f0; /* 悬停时浅灰色背景 */
+  transform: translateY(-2px); /* 悬停时轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
+}
+
+.transactions-container .pagination button:disabled {
+  background-color: #e0e0e0; /* 禁用按钮灰色背景 */
+  color: #999; /* 禁用按钮灰色字体 */
+  cursor: not-allowed;
 }
 
 .transactions-container table {
@@ -619,5 +861,12 @@ td:nth-child(4) {
 .transactions-container th:nth-child(7),
 .transactions-container td:nth-child(7) {
   width: 15%; /* 操作列宽度 */
+}
+
+h2, h3 {
+  font-size: 24px; /* 设置统一的字体大小 */
+  font-weight: bold; /* 加粗 */
+  color: #333; /* 设置颜色 */
+  margin-bottom: 15px; /* 添加底部间距 */
 }
 </style>

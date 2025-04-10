@@ -1,7 +1,6 @@
 <template>
   <div class="property-details">
     <section class="property-info">
-      <h2>房子详细信息</h2>
       <div class="info-item">
         <span class="label">房源编号:</span>
         <span class="value">{{ property.id }}</span>
@@ -25,9 +24,8 @@
     </section>
 
     <section class="actions">
-      <h3>操作</h3>
       <button class="btn btn-close" @click="$emit('close')">关闭</button>
-      <button class="btn btn-update" @click="showModal('removedStatus')">更新下架状态</button>
+      <button class="btn btn-update" @click="showModal('removedStatus')">下架</button>
       <button class="btn btn-update" @click="showModal('rent')">更新月租金</button>
       <button class="btn btn-update" @click="showModal('description')">更新房屋描述</button>
     </section>
@@ -52,17 +50,18 @@
           <tr>
             <th>发送者地址</th>
             <th>发送内容</th>
-            <th>是否同意</th>
+            <th>请求状态</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(request, index) in paginatedRequests" :key="index">
-            <td>{{ request.sender }}</td>
+            <td>{{ short(request.sender) }}</td> 
             <td>{{ request.message }}</td>
             <td>{{ request.approved ? '已同意' : '未处理' }}</td>
             <td>
-              <button class="btn btn-handle" @click="openApprovalModal(index + (currentPage - 1) * pageSize)">处理</button>
+              <div v-if="request.approved">已处理</div>
+              <button v-else class="btn btn-handle" @click="openApprovalModal(index + (currentPage - 1) * pageSize)">处理</button>
             </td>
           </tr>
         </tbody>
@@ -101,11 +100,12 @@
         </thead>
         <tbody>
           <tr v-for="(request, index) in paginatedRentalRequests" :key="index">
-            <td>{{ request.sender }}</td>
+            <td>{{ short(request.sender) }}</td>
             <td>{{ request.message }}</td>
             <td>{{ request.approved ? '已同意' : '未处理' }}</td>
             <td>
-              <button class="btn btn-handle" @click="openRentalApprovalModal(index + (rentalCurrentPage - 1) * rentalPageSize)">处理</button>
+              <div v-if="request.approved">已处理</div>
+              <button v-else class="btn btn-handle" @click="openRentalApprovalModal(index + (rentalCurrentPage - 1) * rentalPageSize)">处理</button>
             </td>
           </tr>
         </tbody>
@@ -173,13 +173,17 @@ export default {
     try {
       // 获取所有联系请求 ID
       const allContactRequestIds = await this.rentRequestContract.getConRequests(false);
-      console.log('所有联系请求 ID:', allContactRequestIds);
+
       this.contactRequests = await Promise.all(
         allContactRequestIds.map(async (id) => {
           try {
-            const request = await this.rentRequestContract.getConRequestById(id);
-            if (request.propertyId === this.property.id) {
+            const requestId = id.toNumber(); // 将 BigNumber 转换为普通数字
+            const request = await this.rentRequestContract.getConRequestById(requestId);
+
+            console.log('联系请求:', request);
+            if (Number(request.propertyId) === Number(this.property.id)) {
               return {
+                id: request.conRequestId,
                 sender: request.sender,
                 message: request.content,
                 approved: request.approved
@@ -191,18 +195,22 @@ export default {
           return null; // 过滤掉失败的请求
         })
       );
-      console.log('联系请求:', this.contactRequests);
+
       this.contactRequests = this.contactRequests.filter(request => request !== null);
 
       // 获取所有租房请求 ID
       const allRentalRequestIds = await this.rentRequestContract.getRentRequests(false);
-      console.log('所有租房请求 ID:', allRentalRequestIds);
+
       this.rentalRequests = await Promise.all(
         allRentalRequestIds.map(async (id) => {
           try {
-            const request = await this.rentRequestContract.getRentRequestById(id);
-            if (request.propertyId === this.property.id) {
+            const requestId = id.toNumber(); 
+            const request = await this.rentRequestContract.getRentRequestById(requestId);
+
+            console.log('租房请求:', request);
+            if (Number(request.propertyId) === Number(this.property.id)) {
               return {
+                id: request.rentRequestId,
                 sender: request.sender,
                 message: request.content,
                 months: request.months,
@@ -215,6 +223,7 @@ export default {
           return null; // 过滤掉失败的请求
         })
       );
+
       this.rentalRequests = this.rentalRequests.filter(request => request !== null);
 
     } catch (error) {
@@ -247,11 +256,9 @@ export default {
     }
   },
   methods: {
-    isRentable(id) {
-      return true; // 模拟函数
-    },
-    isRemoved(id) {
-      return true; // 模拟函数
+    short(address){
+      if (!address) return '';
+      return `${address.slice(0, 4)}...${address.slice(-4)}`; // 格式化地址
     },
     showModal(action) {
       this.currentAction = action;
@@ -325,6 +332,8 @@ export default {
     async approveRequest() {
       try {
         const requestId = this.contactRequests[this.currentRequestIndex].id;
+
+        console.log("requestId:", requestId);
         await this.rentRequestContract.handleConRequest(requestId, true);
         alert('请求已同意！');
         this.contactRequests[this.currentRequestIndex].approved = true; // 更新本地状态
@@ -369,9 +378,8 @@ export default {
     async approveRentalRequest() {
       try {
         const requestId = this.rentalRequests[this.currentRentalRequestIndex].id;
-        await this.rentRequestContract.handleRentRequest(requestId, true);
+        await this.rentRequestContract.handleRentRequest(Number(requestId), true);
         alert('租房请求已同意！');
-        this.rentalRequests[this.currentRentalRequestIndex].approved = true; // 更新本地状态
       } catch (error) {
         console.error('处理租房请求失败:', error);
         alert('处理租房请求失败，请稍后重试！');
@@ -382,9 +390,8 @@ export default {
     async rejectRentalRequest() {
       try {
         const requestId = this.rentalRequests[this.currentRentalRequestIndex].id;
-        await this.rentRequestContract.handleRentRequest(requestId, false);
+        await this.rentRequestContract.handleRentRequest(Number(requestId), false);
         alert('租房请求已拒绝！');
-        this.rentalRequests[this.currentRentalRequestIndex].approved = false; // 更新本地状态
       } catch (error) {
         console.error('处理租房请求失败:', error);
         alert('处理租房请求失败，请稍后重试！');
@@ -403,25 +410,28 @@ export default {
 <style scoped>
 .property-details {
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff; /* 系统默认白色背景 */
   font-family: 'Arial', sans-serif;
 }
 
 .property-info {
-  background-color: #fff;
+  background-color: #f9f9f9; /* 浅灰色背景 */
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  max-width: 1200px; /* 增加最大宽度 */
+  margin-left: auto; /* 居中 */
+  margin-right: auto; /* 居中 */
+  width: 100%; /* 设置宽度为 90% */
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 15px 0; /* 增加上下间距 */
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 18px; /* 再次增大字体 */
 }
 
 .info-item:last-child {
@@ -430,38 +440,37 @@ export default {
 
 .label {
   font-weight: bold;
-  color: #333;
+  color: #000; /* 黑色字体 */
 }
 
 .value {
-  color: #555;
+  color: #333; /* 深灰色字体 */
 }
 
 .actions {
-  margin-top: 20px;
+  margin-top: 30px; /* 增加顶部间距 */
+  display: flex; /* 使用 Flex 布局 */
+  flex-wrap: wrap; /* 允许按钮换行 */
+  justify-content: center; /* 按钮居中对齐 */
+  gap: 30px; /* 增加按钮之间的间距 */
 }
 
 .actions .btn {
-  margin: 5px;
-  padding: 10px 20px;
-  font-size: 14px;
-  border: none;
-  border-radius: 5px;
+  padding: 14px 28px; /* 增加按钮的内边距 */
+  font-size: 16px; /* 保持字体大小 */
+  border: none; /* 移除边框 */
+  border-radius: 8px; /* 更圆润的边角 */
+  background-color: #ffffff; /* 系统默认白色背景 */
+  color: #000; /* 黑色字体 */
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影代替边框 */
+  transition: all 0.3s ease;
 }
 
-.btn-close {
-  background-color: #6c757d;
-  color: #fff;
-}
-
-.btn-update {
-  background-color: #007bff;
-  color: #fff;
-}
-
-.btn:hover {
-  opacity: 0.9;
+.actions .btn:hover {
+  background-color: #f0f0f0; /* 悬停时浅灰色背景 */
+  transform: translateY(-2px); /* 悬停时轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
 }
 
 .modal-overlay {
@@ -477,12 +486,25 @@ export default {
 }
 
 .modal {
-  background: #fff;
+  background: #ffffff; /* 白色背景 */
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 10px; /* 圆角 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 添加阴影 */
   text-align: center;
   width: 400px;
+}
+
+.modal h3 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000; /* 黑色字体 */
+  margin-bottom: 15px;
+}
+
+.modal p {
+  font-size: 14px;
+  color: #555; /* 深灰色字体 */
+  margin-bottom: 20px;
 }
 
 .modal input {
@@ -491,57 +513,83 @@ export default {
   margin: 15px 0;
   border: 1px solid #ddd;
   border-radius: 5px;
+  font-size: 14px;
+  color: #000; /* 黑色字体 */
+  background-color: #ffffff; /* 系统默认白色背景 */
 }
 
 .modal-actions {
   display: flex;
   justify-content: space-between;
+  gap: 10px; /* 增加按钮间距 */
 }
 
 .modal-actions .btn {
   flex: 1;
-  margin: 0 5px;
+  padding: 12px;
+  font-size: 14px;
+  border: none; /* 移除边框 */
+  border-radius: 6px; /* 圆角 */
+  background-color: #ffffff; /* 白色背景 */
+  color: #000; /* 黑色字体 */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: all 0.3s ease;
 }
 
-.btn-confirm {
-  background-color: #28a745;
-  color: #fff;
-}
-
-.btn-cancel {
-  background-color: #dc3545;
-  color: #fff;
-}
-
-.contact-requests {
-  margin-top: 20px;
+.modal-actions .btn:hover {
+  background-color: #f0f0f0; /* 悬停时浅灰色背景 */
+  transform: translateY(-2px); /* 悬停时轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
 }
 
 .requests-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.requests-table th,
-.requests-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
+  margin-top: 20px;
+  table-layout: fixed;
+  background-color: #ffffff; /* 白色背景 */
+  border-radius: 8px; /* 圆角 */
+  overflow: hidden; /* 隐藏溢出 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
 }
 
 .requests-table th {
-  background-color: #f4f4f4;
+  background-color: #f9f9f9; /* 浅灰色背景 */
   font-weight: bold;
+  color: #000; /* 黑色字体 */
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd; /* 添加底部边框 */
+}
+
+.requests-table td {
+  padding: 12px;
+  text-align: center;
+  color: #333; /* 深灰色字体 */
+  border-bottom: 1px solid #f0f0f0; /* 添加底部边框 */
+}
+
+.requests-table tr:last-child td {
+  border-bottom: none; /* 移除最后一行的底部边框 */
 }
 
 .btn-handle {
-  background-color: #ffc107;
-  color: #fff;
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none; /* 移除边框 */
+  border-radius: 6px; /* 圆角 */
+  background-color: #ffffff; /* 白色背景 */
+  color: #000; /* 黑色字体 */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  transition: all 0.3s ease;
 }
 
 .btn-handle:hover {
-  opacity: 0.9;
+  background-color: #f0f0f0; /* 悬停时浅灰色背景 */
+  transform: translateY(-2px); /* 悬停时轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
 }
 
 .pagination {
@@ -554,44 +602,25 @@ export default {
 
 .btn-page {
   padding: 5px 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
+  font-size: 14px;
+  border: none; /* 移除边框 */
   border-radius: 4px;
+  background-color: #ffffff; /* 系统默认白色背景 */
+  color: #000; /* 黑色字体 */
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影代替边框 */
+  transition: all 0.3s ease;
+}
+
+.btn-page:hover {
+  background-color: #f0f0f0; /* 悬停时浅灰色背景 */
+  transform: translateY(-2px); /* 悬停时轻微上移 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* 增强阴影效果 */
 }
 
 .btn-page:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* 租房请求表格样式 */
-.rental-requests {
-  margin-top: 20px;
-}
-
-.actions .btn,
-.modal-actions .btn,
-.pagination .btn-page,
-.requests-table .btn-handle {
-  background-color: #000; /* 修改为黑色背景 */
-  color: #fff; /* 修改为白色文字 */
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.actions .btn:hover,
-.modal-actions .btn:hover,
-.pagination .btn-page:hover,
-.requests-table .btn-handle:hover {
-  opacity: 0.9; /* 鼠标悬停时稍微变暗 */
-}
-
-.btn-page:disabled {
-  background-color: #ccc; /* 禁用按钮保持灰色 */
-  color: #fff; /* 禁用按钮文字仍为白色 */
+  background-color: #e0e0e0; /* 禁用按钮灰色背景 */
+  color: #999; /* 禁用按钮灰色字体 */
   cursor: not-allowed;
 }
 </style>
